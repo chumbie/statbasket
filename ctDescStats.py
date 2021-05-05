@@ -478,83 +478,81 @@ class DescriptiveStats:
         return self.mean - self.moe, self.mean + self.moe
 
     def __repr__(self):
-        n_type = ""
-        n_letter = ""
+        """Return a string of composition 'top' + 'title' + 'data_table'
+        + 'bottom'"""
+        n_type = str()
+        n_letter = str()
         if self.is_population:
             n_type = "Population"
             n_letter = "N"
         else:
             n_type = "Sample"
             n_letter = "n"
-        if self.data_name:
-            desc = f' Description of {self.data_name} '
-        else:
-            desc = f" Description of {n_type} "
-        general_stats = f" General {n_type} Statistics "
-        size = f"Size of {n_type} ({n_letter})"
-        print_n = "{:,}".format(self.n)
-        print_min = "{:,}".format(self.min)
-        print_max = "{:,}".format(self.max)
-        print_mean = "{:,}".format(round(self.mean, 3))
-        print_ci_desc = f"CI ({self.cl:.0%}, t={self.score}, df={self.df})"
-        print_ci = "[{:,}".format(round(self.ci[0], 3)) + ", {:,}]".format(round(self.ci[1], 3))
-        print_median = "{:,}".format(round(self.median, 3))
-        if type(self.mode[0]) == str:
-            print_mode = "N/A"
-        else:
-            mode_list = list()
-            for i in range(len(self.mode)):
-                mode_list.append("{:,}".format(round(self.mode[i])))
-            print_mode = ", ".join(mode_list)
-        print_range = "{:,}".format(round(self.range, 3))
-        print_var = "{:,}".format(round(self.var, 3))
-        print_stdev = "{:,}".format(round(self.stdev, 3))
-        print_sterr = "{:,}".format(round(self.sterr, 3))
-        print_cov = "{:,}".format(round(self.cv, 3))
-        print_skew = "{:,}".format(round(self.skew, 3))
-        L_WIDTH = max(len(print_ci_desc), len(print_cov))
-        R_WIDTH = max(len(str(print_var)) + 1, len(str(self.data_name)), len(str(print_ci_desc)))
-        TOTAL_WIDTH = L_WIDTH + R_WIDTH + 4
 
-        return \
-f""" {"_" * TOTAL_WIDTH}
-|{"=" * TOTAL_WIDTH}|
-|{desc.center(TOTAL_WIDTH, "=")}|
-|{"=" * TOTAL_WIDTH}|
-|{" " * TOTAL_WIDTH}|
-|{general_stats.center(TOTAL_WIDTH, "-")}|
-|{" " * TOTAL_WIDTH}|
-| {size.center(L_WIDTH) + " : " + print_n.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Minimum Value (min)".center(L_WIDTH) + " : " + print_min.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Maximum Value (max)".center(L_WIDTH) + " : " + print_max.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-|{" Central Tendency ".center(TOTAL_WIDTH, "-")}|
-|{" " * TOTAL_WIDTH}|
-| {"Mean".center(L_WIDTH) + " : " + print_mean.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {print_ci_desc.center(L_WIDTH) + " : " + print_ci.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Median".center(L_WIDTH) + " : " + print_median.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Mode".center(L_WIDTH) + " : " + print_mode.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Range".center(L_WIDTH) + " : " + print_range.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-|{" Level of Variation ".center(TOTAL_WIDTH, "-")}|
-|{" " * TOTAL_WIDTH}|
-| {"Variance".center(L_WIDTH) + " : " + print_var.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Standard Deviation".center(L_WIDTH) + " : " + print_stdev.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Standard Error".center(L_WIDTH) + " : " + print_sterr.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Coeff. of Variation".center(L_WIDTH) + " : " + print_cov.center(R_WIDTH)}|
-|{" " * TOTAL_WIDTH}|
-| {"Skewness".center(L_WIDTH) + " : " + print_skew.center(R_WIDTH)}|
-{"|" + "_" * (TOTAL_WIDTH) + "|"}
-"""
+        print_sections = (
+            f"General {n_type} Statistics",
+            f"Measures of Central Tendency",
+            f"Measures of Variation",
+            f"Confidence Interval Statistics"
+        )
+        title = f"DESCRIPTION OF {'DATA' if self.data_name == 'data' else self.data_name}"
+        print_dict = dict()
+        # Key = section: (Subkey = stat name, Value: stat value)
+        print_dict[f"General {n_type} Statistics"] = (
+            (f"Size of {n_type} ({n_letter})", "{:,}".format(round(self.n, 3))),
+            ("Minimum Value (min)", "{:,}".format(round(self.min, 3))),
+            ("Maximum Value (max)", "{:,}".format(round(self.max, 3)))
+        )
+        # Transform mode tuple into string
+        print_mode = str()
+        for each in self.mode:
+            print_mode = "{:,}".format(round(each, 3)) + ", "
+        print_mode = print_mode[:-2]
+        print_dict["Measures of Central Tendency"] = (
+            ("Mean", "{:,}".format(round(self.mean, 3))),
+            ("Median", "{:,}".format(round(self.median, 3))),
+            ("Mode", print_mode),
+            ("Range", "{:,}".format(round(self.range, 3)))
+        )
+        print_dict["Measures of Variation"] = (
+            ("Variance", "{:,}".format(round(self.var, 3))),
+            ("Standard Deviation", "{:,}".format(round(self.stdev, 3))),
+            ("Standard Error", "{:,}".format(round(self.sterr, 3))),
+            ("Coeff. of Variation", "{:,}".format(round(self.cv, 3))),
+            ("Skewness", "{:,}".format(round(self.skew, 3)))
+        )
+        print_dict["Confidence Interval Statistics"] = (
+            ("Confidence Level", "{:,}".format(round(self.cl, 3))),
+            (f"\N{GREEK SMALL LETTER ALPHA} ({self.tail if self.tail else 'two'}-tailed test)", "{:,}".format(round(self.alpha, 3))),
+            (f"{self.score_type}-score", "{:,}".format(round(self.score, 3))),
+            (f"Margin of Error (E)", "{:,}".format(round(self.moe, 3))),
+            (f"CI (mean \u00B1 E)", "[{:,}".format(round(self.ci[0], 3)) + ", " + "{:,}]".format(round(self.ci[1], 3)))
+        )
+
+        # gets the maximum length of left and right columns
+        L_WIDTH = 0
+        R_WIDTH = 0
+        TOTAL_WIDTH = 0
+        DIVIDER = " : "
+        for section in print_sections:
+            TOTAL_WIDTH = max(len(section), TOTAL_WIDTH)
+            for stat_tuple in print_dict[section]:
+                L_WIDTH = max(len(stat_tuple[0]), L_WIDTH)
+                R_WIDTH = max(len(stat_tuple[1]), R_WIDTH)
+        TOTAL_WIDTH = max(L_WIDTH + R_WIDTH + len(DIVIDER), len(title), TOTAL_WIDTH)
+        LINE_BREAK = f"|{'='*(TOTAL_WIDTH+2)}|\n"
+        # create the central data in the table
+        data_string = str()
+        for section in print_sections:
+            data_string += LINE_BREAK + f"|-{section.center(TOTAL_WIDTH, '-')}-|\n" + LINE_BREAK
+            for stat_tuple in print_dict[section]:
+                data_string += f"| {stat_tuple[0].center(L_WIDTH)}{DIVIDER}{stat_tuple[1].center(R_WIDTH)} |\n"
+        # create the top, title, and bottom of the table
+        top = f"{''.center(TOTAL_WIDTH + 4, '_')}\n"
+        title = LINE_BREAK + f"| {title.center(TOTAL_WIDTH)} |\n"
+        bottom = f"{''.center(TOTAL_WIDTH + 4, '-')}\n"
+
+        return top + title + data_string + bottom
 
 
 if __name__ == "__main__":
@@ -562,8 +560,8 @@ if __name__ == "__main__":
         (1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0),
         cl=0.99,
         is_population=True)
-    print(dsObject.score)
-    print(round(dsObject.moe, 4))
-    print(round(dsObject.ci[0], 4))
-    print(round(dsObject.ci[1], 4))
+    print(dsObject)
+    # print(round(dsObject.moe, 4))
+    # print(round(dsObject.ci[0], 4))
+    # print(round(dsObject.ci[1], 4))
     # print(dsObject.t_table[999][0.005])
