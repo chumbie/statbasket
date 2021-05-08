@@ -9,7 +9,7 @@ https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug"""
 import unittest
 
 # Third-Party Imports
-from ctDescStats import DescriptiveStats as ds
+from descriptiveStats import DescriptiveStats as ds
 
 
 class TestDescrtiptiveStatsClass(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestDescrtiptiveStatsClass(unittest.TestCase):
         with self.assertRaises(AssertionError):
             ds((1, 2, 3), cl=0.98)
             ds((1, 2, 3), cl="spaghetti")
-            ds((1, 2, 3), tails="spaghetti")
+            ds((1, 2, 3), tail="spaghetti")
             ds((1, 2, 3), data_name=7)
             ds((1, 2, 3), data_name=True)
             ds((1, 2, 3), data_name=6.022)

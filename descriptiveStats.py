@@ -38,6 +38,9 @@ class DescriptiveStats:
     cl : float
         confidence level for confidence interval calculations, accepted
         values are 0.90, 0.95, and 0.99 (default 0.95)
+    tail : str
+        default "two", the tailed nature of the test. Options are "two",
+        "left", or "right".
     data_name : str
         name given to the data set, appears on the display (default None)
 
