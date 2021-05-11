@@ -35,8 +35,8 @@ class TestDescrtiptiveStatsClass(unittest.TestCase):
     def test_get_lookup_df(self):
         self.assertEqual(self.data_simple.n, 8)
         self.assertEqual(self.data_population_zeroes.n, 13)
-        self.assertEqual(self.data_simple.df_lookup, 7)
-        self.assertEqual(self.data_population_zeroes.df_lookup, 999)
+        self.assertEqual(self.data_simple._dflookup, 7)
+        self.assertEqual(self.data_population_zeroes._dflookup, 999)
 
     def test_mean_calculation(self):
         self.assertEqual(self.data_simple.mean, 4.375)
@@ -91,12 +91,12 @@ class TestDescrtiptiveStatsClass(unittest.TestCase):
         self.assertEqual(round(self.data_population_zeroes.skew, 4), 1.0251)
 
     def test_score_calculations(self):
-        self.assertEqual((self.data_simple.score_type,
-                          self.data_simple.score), ("t", 2.365))
-        self.assertEqual((self.data_negatives.score_type,
-                          self.data_negatives.score), ("t", 1.895))
-        self.assertEqual((self.data_population_zeroes.score_type,
-                          self.data_population_zeroes.score), ("z", 2.576))
+        self.assertEqual((self.data_simple._score_type,
+                          self.data_simple.ci_score), ("t", 2.365))
+        self.assertEqual((self.data_negatives._score_type,
+                          self.data_negatives.ci_score), ("t", 1.895))
+        self.assertEqual((self.data_population_zeroes._score_type,
+                          self.data_population_zeroes.ci_score), ("z", 2.576))
 
     def test_confidence_interval_calculation(self):
         self.assertEqual(  # data_simple

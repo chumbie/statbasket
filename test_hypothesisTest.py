@@ -8,7 +8,7 @@ https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug"""
 # Standard Library Imports
 import unittest
 # Third-Party Imports
-from zTable import p_value
+from hypothesisTest import HypothesisTest as ht
 
 
 class ZTablePValueFunctionTest(unittest.TestCase):
