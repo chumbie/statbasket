@@ -74,11 +74,6 @@ class DescriptiveStats:
         sigma^nvi((xi - mean)^3)/((n-1)(sigma)^3)
     """
 
-    def __repr__(self):
-        data_name = str()
-        if self.data_name != "data":
-            data_name = f" Name of data = {self.data_name}"
-        return f"A DescriptiveStats object.{data_name}"
     # Score tables
     t_table = {
         1: {0.1: 3.078, 0.05: 6.314, 0.025: 12.706, 0.01: 31.821, 0.005: 63.657},
@@ -118,6 +113,7 @@ class DescriptiveStats:
         120: {0.1: 1.289, 0.05: 1.658, 0.025: 1.98, 0.01: 2.358, 0.005: 2.617},
         999: {0.1: 1.282, 0.05: 1.645, 0.025: 1.96, 0.01: 2.326, 0.005: 2.576}
     }
+
     z_table = {
         -99: 0.0001,
         0.0: 0.5, 0.01: 0.504, 0.02: 0.508, 0.03: 0.512, 0.04: 0.516, 0.05: 0.5199, 0.06: 0.5239, 0.07: 0.5279,
@@ -193,19 +189,28 @@ class DescriptiveStats:
         99: 0.9999
     }
 
+    def __repr__(self):
+        data_name = str()
+        if self.data_name != "data":
+            data_name = f" Name of data = {self.data_name}"
+        return f"A DescriptiveStats object.{data_name}"
+
     def __init__(self,
-                 data1: tuple,
-                 data2=None,
+                 data: tuple,
                  is_population=False,
+                 samples_dependent=False,
                  cl=0.95,
                  tail=None,
-                 data1_name="data",
-                 data2_name="data"):
+                 first_index=0,
+                 second_index=1,
+                 first_name="data",
+                 second_name="data"):
         """
         Parameters
         __________
         data : tuple
-            Data supplied by user, in tuple form.
+            Data supplied by user, in tuple form. To supply multiple data
+            sets, supply a tuple of tuples ((1, 2, 3),(4, 5, 6)).
         is_population : bool, optional
             Default False, indicates whether data is a sample (False) or a
             population (True).
@@ -221,45 +226,55 @@ class DescriptiveStats:
         """
 
         # #################### #
-        # Primary Attributes and Validation
+        # Data Validation
         # #################### #
 
-        assert isinstance(data1, tuple or list), \
-            f"Data is of type '{type(data1).__name__}'. Acceptable types: 'tuple', 'list'"
-        if data2:
-            assert isinstance(data2, tuple or list or None), \
-                f"Data is of type '{type(data1).__name__}'. Acceptable types: 'tuple', 'list'"
+        if not isinstance(data, tuple or list):
+            raise ValueError(
+                   f"Data is of type '{type(data).__name__}'. "
+                   f"Acceptable types: 'tuple', 'list'")
+        if isinstance(data[0], int):
+            data = data, ()
+
         data_type_error_list = []
-        for i in range(len(data1)):
-            if not isinstance(data1[i], int or float):
-                data_type_error_list.append((i, data1[i]))
-        assert len(data_type_error_list) == 0, \
-            f"One or more values in dataset are non-numeric (index, value): {data_type_error_list}"
-        assert isinstance(is_population, bool), \
-            f"is_population is of type '{type(is_population).__name__}', must be type 'bool' (True or False)."
-        assert cl in (0.90, 0.95, 0.99), \
-            f"Confidence level (cl={str(cl)}) is not 0.90, 0.95, or 0.99."
-        assert tail in (None, "two", "left", "right"), \
-            f"Tail attribute value (tail={str(cl)}) is not 'two', 'left', or 'right'."
-        assert isinstance(data1_name, str), f"data_name {str(data1_name)} is not a string."
-        if not data2:
-            data2 = tuple()
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                if not isinstance(data[i][j], int or float):
+                    data_type_error_list.append((i, j, data[i][j]))
+        if len(data_type_error_list) != 0:
+            raise ValueError(f"One or more values in dataset are non-numeric \n"
+                             f"(data_index, value_index, value): {data_type_error_list}")
+        if not isinstance(is_population, bool):
+            raise ValueError(f"is_population is of type '{type(is_population).__name__}', "
+                             f"must be of type 'bool' (True or False).")
+        if cl not in (0.90, 0.95, 0.99):
+            raise ValueError(f"Confidence level (cl={str(cl)}) is not 0.90, 0.95, or 0.99.")
+        if tail not in (None, "two", "left", "right"):
+            raise ValueError(f"Tail attribute value (tail={str(cl)}) is not 'two', 'left', or 'right'.")
         if not tail:
             tail = "two"
-        self.data = data1, data2
+        if not isinstance(first_name and second_name, str):
+            raise ValueError(f"data_name {str(first_name)} is not a string.")
+
+        # #################### #
+        # Primary Attributes
+        # #################### #
+
+        self.data = data
         self.is_population = is_population
+        self.samples_dependent = samples_dependent
         self.cl = cl
         self.tail = tail
-        self.data_name = data1_name
+        self.first_index = first_index
+        self.second_index = second_index
+        self.data_name = first_name
 
-    # #################### #
-    # Calculated Data Properties
-    # #################### #
+    # Calculated Data Properties ######################################
 
     @property
     def n(self) -> tuple:
         """Return a tuple containing the length of each dataset.
-        return = (n_data1, n_data2)."""
+        return = (n_data1, n_data2, ...)."""
         return_list = list()
         for each in self.data:
             if each == ():
@@ -310,9 +325,7 @@ class DescriptiveStats:
         return_alpha = (1 - self.cl) / 2 if self.tail == "two" else 1 - self.cl
         return round(return_alpha, 3)
 
-    # #################### #
-    # Measures of Central Tendency
-    # #################### #
+    # Measures of Central Tendency ####################################
 
     @property
     def min(self) -> tuple:
@@ -432,9 +445,7 @@ class DescriptiveStats:
             return_list.append(skewness)
         return tuple(return_list)
 
-    # #################### #
-    # Measures of Data Variation
-    # #################### #
+    # Measures of Data Variation ######################################
 
     @property
     def var(self) -> tuple:
@@ -501,12 +512,10 @@ class DescriptiveStats:
             return_list.append(self.stdev[i] / self.mean[i])
         return tuple(return_list)
 
-    # #################### #
-    # Statistics Score Functions
-    # #################### #
+    # Z/T-score Properties ############################################
 
     @property
-    def _score_type(self) -> tuple:
+    def score_type(self) -> tuple:
         """Returns a string representation of the test being performed, based on the provided data.
 
         Possible return values include:
@@ -523,27 +532,97 @@ class DescriptiveStats:
         return tuple(return_list)
 
     @property
-    def ci_score(self) -> tuple:
-        """Return the score for self.score_type from the appropriate table.
+    def score_critical(self) -> tuple:
+        """Return the critical score from the t-table for the given confidence level (cl).
 
-        Acceptable score types:
-
-        * "z" = z-score
-        * "t" = Student t-score"""
+        In confidence intervals, this score is called the 'reliability factor'."""
         return_list = list()
         for i in range(len(self._dflookup)):
-            if self._score_type[i] in ("z", "t"):
-                try:
-                    return_list.append(self.t_table[self._dflookup[i]][self.alpha])
-                except KeyError as exc:
-                    raise KeyError(f"t_table lookup cannot interpret "
-                          f"df_lookup or alpha (exc={exc}). "
-                          f"self.df_lookup = {self._dflookup}, "
-                          f"self.alpha = {self.alpha}")
-            else:
-                raise ValueError(f"Score calculation not implemented for "
-                                 f"self.score_type={self._score_type}")
+            try:
+                return_list.append(self.t_table[self._dflookup[i]][self.alpha])
+            except KeyError as exc:
+                raise KeyError(f"t_table lookup cannot interpret df_lookup or alpha (exc={exc}). "
+                               f"self.df_lookup = {self._dflookup}, "
+                               f"self.alpha = {self.alpha}")
         return tuple(return_list)
+
+    # Two-Population Properties #######################################
+
+    @property
+    def data_diff(self) -> tuple:
+        """Return tuple of differences between the two dependent data sets
+
+        .. math::
+            x_{diff,i} = x_{1,i} - x_{2,i}
+        """
+        if self.samples_dependent is not True:
+            raise ValueError("Samples not dependent. Did you declare samples_dependent=True?")
+        else:
+            return_list = list()
+            for i in range(len(self.data[0])):
+                x1 = self.data[self.first_index][i]
+                x2 = self.data[self.second_index][i]
+                return_list.append(x1 - x2)
+            return tuple(return_list)
+
+    @property
+    def n_diff(self) -> float:
+        """Return the number of datapoints in difference dataset"""
+        return len(self.data_diff)
+
+    @property
+    def mean_diff(self) -> float:
+        """Return the average of the difference between the two dependent data sets"""
+        mean_difference = sum(self.data_diff) / self.n_diff
+        return mean_difference
+
+    @property
+    def var_diff(self) -> float:
+        """Return the variance of the differences between the first and second data sets
+
+        .. math::
+            s_diff^2 = \\frac{\sum_{i=1}^{n}(x_{i,diff} - mean_diff)^{2}}{n}
+        """
+        variance_of_difference = 0.0
+        for each_item in self.data_diff:
+            variance_of_difference += (each_item - self.mean_diff) ** 2
+        variance_of_difference = variance_of_difference / (len(self.data_diff) - 1)
+        return variance_of_difference
+
+    @property
+    def stdev_diff(self) -> float:
+        """Return the standard deviation of the differences between the
+        first and second data sets
+
+        .. math::
+            s_diff = \sqrt{s^2_diff}
+        """
+        from math import sqrt
+        return sqrt(self.var_diff)
+
+    @property
+    def sterr_diff(self) -> float:
+        """Calculates the standard error of the data set
+
+        .. math::
+            SE = s/\sqrt{n}
+        """
+        from math import sqrt
+        return self.stdev_diff / sqrt(self.n[self.first_index])
+
+    @property
+    def var_pool(self) -> float:
+        """Return the pooled variance between the first and second data sets
+
+        .. math::
+            s_p^2 = \\frac{(n_x - 1)s^2_x + (n_y - 1)s^2_y)}{n_x + n_y - 2}
+        """
+        a = self.n[self.first_index] * self.var[self.first_index]
+        b = self.n[self.second_index] * self.var[self.second_index]
+        c = self.n[self.first_index] + self.n[self.second_index] - 2
+        return (a + b) / c
+
+    # Confidence Interval Properties ##################################
 
     @property
     def moe(self) -> tuple:
@@ -557,15 +636,26 @@ class DescriptiveStats:
         for i in range(len(self.data)):
             if self.data[i] == ():
                 break
-            return_list.append(self.ci_score[i] * self.sterr[i])
+            return_list.append(self.score_critical[i] * self.sterr[i])
         return tuple(return_list)
+
+    @property
+    def moe_diff(self) -> float:
+        """
+        Return margin of error of the population difference, used for confidence
+        interval calculation.
+
+        E = z-/t-score * sterr
+        """
+        return self.score_critical[0] * self.sterr_diff
 
     @property
     def ci(self) -> tuple:
         """
-        Return (ci_lower, ci_upper), i.e. a tuple containing the
-        lower mean estimation, upper mean estimation at confidence
-        level = cl, default 0.95 (95% confidence).
+        Return (ci_lower, ci_upper)
+
+        Calculates the lower mean estimation and upper mean estimation at
+        confidence level = cl, default 0.95 (95% confidence).
 
         * CI = mean +- t-score * sterr
         """
@@ -575,6 +665,127 @@ class DescriptiveStats:
                 break
             return_list.append((self.mean[i] - self.moe[i], self.mean[i] + self.moe[i]))
         return tuple(return_list)
+
+    @property
+    def ci_diff(self) -> tuple:
+        """
+        Return (ci_lower, ci_upper)
+
+        Calculates the lower mean estimation and upper mean estimation
+        at confidence level = cl, default 0.95 (95% confidence).
+
+        .. math::
+            CI_diff = mean_diff \\pm t_{\\alpha/2} * SE
+        """
+        return self.mean_diff - self.moe_diff, self.mean_diff + self.moe_diff
+
+    # Hypothesis Testing Properties and Functions #####################
+
+    def score_hyp_calc(self, h0_mu=0) -> tuple or str:
+        """Takes data and null hypothesis, returns a tuple with test score,
+        p-value, alpha, and interpretation ("reject null" or "fail to reject null")"""
+        # Check that both samples are same length
+        if self.samples_dependent:
+            assert len(self.data[self.first_index]) == len(self.data[self.second_index]), \
+                "Samples flagged 'dependent' but not of equal length.\n" \
+                f"len(data1) = {len(self.data[self.first_index])}\n" \
+                f"len(data2) = {len(self.data[self.second_index])}"
+
+        from math import sqrt
+        return_test_score = float()
+        return_score_type = str()
+        return_test_type = str()
+
+        def test_one_pop():
+            """Return z/t score for hypothesis test
+            Assumptions: single population, z/t determined by _dflookup.
+
+            .. math::
+                Z = \\frac{x^- - \\mu_0}{\\sigma/\\sqrt{n}}
+
+                T = \\frac{x^- - \\mu_0}{s/\\sqrt{n}}"""
+            x_bar = self.mean[self.first_index]
+            s = self.stdev[self.first_index]
+            n = self.n[self.first_index]
+            return (x_bar - h0_mu) / (s / sqrt(n))
+
+        def test_two_pop_known_var_ind():
+            """Return z score for hypothesis test
+
+            Assumptions: two populations, known population variance
+
+            .. math::
+                Z = \\frac{(x^- - y^-) - \\mu_0}{\\sqrt{\\sigma^2_x/n_x + \\sigma^2_y/n_y}}"""
+            x_bar = self.mean[self.first_index]
+            y_bar = self.mean[self.second_index]
+            var_x = self.var[self.first_index]
+            var_y = self.var[self.second_index]
+            n_x = self.n[self.first_index]
+            n_y = self.n[self.second_index]
+            return (x_bar - y_bar) / sqrt(var_x/n_x + var_y/n_y)
+
+        def test_two_pop_unknown_var_dep():
+            """Return t score for hypothesis test
+
+            Assumptions: two populations, unknown population variance, dependent data sets
+
+            .. math::
+                T = \\frac{d^- - \\mu_0}{s_d / \\sqrt{n}}"""
+            d_bar = self.mean_diff
+            stdev_d = self.stdev_diff
+            n = self.n[self.first_index]
+            return (d_bar - h0_mu) / (stdev_d / sqrt(n))
+
+        def test_two_pop_unknown_var_ind():
+            """Return t score for hypothesis test
+
+            Assumptions: two populations, unknown population variance, independent data sets, variances are equal
+
+            .. math::
+                T = \\frac{(x^- - y^-) - \\mu_0}{\\sqrt{s^2_p/n_x + s^2_p/n_y}}"""
+
+            x_bar = self.mean[self.first_index]
+            y_bar = self.mean[self.second_index]
+            var_pool = self.var_pool
+            n_x = self.n[self.first_index]
+            n_y = self.n[self.second_index]
+            return (x_bar - y_bar) / sqrt(var_pool / n_x + var_pool / n_y)
+
+        # Set the score type (z or t)
+        if "z" in self.score_type:
+            return_score_type = "z"
+        else:
+            return_score_type = "t"
+
+        # For single populations
+        if self.second_index is None:
+            if "z" in self.score_type:
+                return_test_type = "one population, known variance"
+            else:
+                return_test_type = "one population, unknown variance"
+            return_test_score = test_one_pop()
+
+        # For two populations
+        else:
+            # Z-test
+            # Two populations, population variance is known, test for true mean difference
+            if "z" in self.score_type:
+                return_test_type = "two populations, known variance"
+                return_test_score = test_two_pop_known_var_ind()
+            # Student t-tests
+            else:
+                # Samples dependent on one another, e.g. before-after weights
+                if self.samples_dependent:
+                    return_test_type = "two populations, unknown variance, dependent samples"
+                    return_test_score = test_two_pop_unknown_var_dep()
+                # Samples independent, population variance assumed equal
+                else:
+                    return_test_type = "two populations, unknown variance, independent samples"
+                    return_test_score = test_two_pop_unknown_var_ind()
+
+        return return_test_score, self.score_critical, return_score_type, return_test_type
+
+    # Other Functions #################################################
 
     def describe(self, data_set_index=0):
         """Return a string of composition 'top' + 'title' + 'data_table'
@@ -626,7 +837,7 @@ class DescriptiveStats:
         print_dict["Confidence Interval Statistics"] = (
             ("Confidence Level", "{:,}".format(round(self.cl, 3))),
             (f"\N{GREEK SMALL LETTER ALPHA} ({self.tail}-tailed test)", "{:,}".format(round(self.alpha, 3))),
-            (f"{self._score_type}-score", "{:,}".format(round(self.ci_score[0], 3))),
+            (f"{self.score_type}-score", "{:,}".format(round(self.score_critical[0], 3))),
             (f"Margin of Error (E)", "{:,}".format(round(self.moe[data_set_index], 3))),
             (f"CI (mean \u00B1 E)", "[{:,}".format(round(self.ci[data_set_index][0], 3)) + ", " + "{:,}]".format(round(self.ci[data_set_index][1], 3)))
         )
@@ -656,140 +867,98 @@ class DescriptiveStats:
 
         return top + title + data_string + bottom
 
-    def hypothesis_test(self,
-                        h0_mu_equals: float,
-                        first_data_set=0,
-                        second_data_set=None,
-                        samples_dependent=False,
-                        verbose=False) -> tuple or str:
-        """Takes data and null hypothesis, returns a tuple with test score,
-        p-value, alpha, and interpretation ("Reject null", "Can't reject null")"""
-        from math import sqrt
-        return_test_score = float()
-        return_p_value = float()
-        return_interpretation = str()
-
-        def p_value(z_score: float, tail: str = "two") -> float:
-            """Returns the cumulative normal distribution at a z of z_score, two-tailed
-            by default.
-
-            :param float z_score: Z-score lookup value used in the table, from -inf to +inf
-            :param str tail: Whether the test is "left" tailed, "right" tailed, or "two"-tailed (default)
-            """
-            # Data validation
-            assert isinstance(z_score, float) or isinstance(z_score, int), \
-                "z_score must be of type 'float' or 'int'"
-            assert tail in ("left", "right", "two"), \
-                "Acceptable tail values: 'left', 'right', 'two'"
-
-            # Scores less than -3.49 have approx. cumulative area = 0.0001
-            # Scores greater than 3.49 are approx. cumulative area = 0.9999
-            z_score = round(z_score, 2)
-
-            if z_score < -3.49:
-                if tail == "right":
-                    return 0.9999
-                else:
-                    return 0.0001
-            elif z_score > 3.49:
-                if tail == "left":
-                    return 0.9999
-                else:
-                    return 0.0001
-
-            # For negative scores, subtract the area represented by the absolute
-            # value of the negative score from 1
-            # print(f"z_score = {z_score}")
-            cumulative_left_area = 0.0
-            return_p_value = 0.0
-            if z_score < 0:
-                # print("z_score < 0")
-                cumulative_left_area = 1 - self.z_table[abs(z_score)]
-            else:
-                # print("z_score > 0")
-                cumulative_left_area = self.z_table[abs(z_score)]
-            # print(f"cla = {cumulative_left_area}")
-            if tail == "two":
-                # print("tail = 'two'")
-                if cumulative_left_area > 0.5:
-                    cumulative_left_area = round(1 - cumulative_left_area, 4)
-                if cumulative_left_area == 0.0001:
-                    return_p_value = cumulative_left_area
-                else:
-                    return_p_value = 2 * cumulative_left_area
-            elif tail == "right":
-                # print("tail = 'right'")
-                return_p_value = 1 - cumulative_left_area
-            else:
-                # print("tail = 'left'")
-                return_p_value = cumulative_left_area
-
-            return round(return_p_value, 4)
-
-        def interpret_p_value(p_value: float, alpha: float):
-            fail_to_reject = "fail to reject the null hypothesis"
-            reject = "reject the null hypothesis"
-
-            if p_value >= alpha:
-                return fail_to_reject
-            else:
-                return reject
-
-        def verbose_explanation(score_type, cl, tail, alpha, score, p_value, interpretation) -> str:
-            tail_dict = {"left": "<", "right": ">", "two": "!="}
-            equal_dict = {"left": ">=", "right": "<=", "two": "="}
-            p_value_with_comparator = f"<{p_value}" if p_value == 0.0001 else p_value
-            return f"The resulting {'z' if 'z' in score_type else 't'}-score for this hypothesis test " \
-                   f"is {round(score, 3)}, which provides a p-value of {p_value_with_comparator}. " \
-                   f"If we compare this p-value to our alpha (cl={cl}, tail={tail}, " \
-                   f"\N{GREEK SMALL LETTER ALPHA}{'/2' if tail == 'two' else ''}={alpha}), " \
-                   f"we can see that {p_value} " \
-                   f"{'>=' if p_value >= alpha else '<'} {alpha}. Therefore, we " \
-                   f"{interpretation} (h0: \N{GREEK SMALL LETTER MU} {equal_dict[tail]} {h0_mu_equals}) " \
-                   f"in favor of the alternative hypothesis (h1: \N{GREEK SMALL LETTER MU} {tail_dict[tail]} {h0_mu_equals})"
-
-        # For single populations
-        if second_data_set is None:
-            return_test_score = (self.mean[first_data_set] - h0_mu_equals) \
-                                / (self.stdev[first_data_set] / sqrt(self.n[first_data_set]))
-            return_p_value = p_value(return_test_score, self.tail)
-            return_interpretation = interpret_p_value(return_p_value, self.alpha)
-        # For two populations
-        else:
-            if "z" in self._score_type:
-                # Two populations, population variance is known, test for true mean difference
-                return_test_score = ((self.mean[first_data_set] - self.mean[second_data_set]) - h0_mu_equals) \
-                                    / sqrt((self.var[first_data_set]/self.n[first_data_set])
-                                           + (self.var[second_data_set]/self.n[second_data_set]))
-                return_p_value = p_value(return_test_score, self.tail)
-                return_interpretation = interpret_p_value(return_p_value, self.alpha)
-            # Student t-tests
-            else:
-                if samples_dependent:
-
-                    print("Not implemented")
-
-
-
-
-
-
-
-        if verbose:
-            return verbose_explanation(self._score_type, self.cl, self.tail, self.alpha,
-                                       round(return_test_score, 3), return_p_value, return_interpretation)
-        else:
-            return round(return_test_score, 3), return_p_value, self.alpha, return_interpretation
-
 
 if __name__ == "__main__":
     dsObject = DescriptiveStats(
-        (0, 0, 0, 0, 0, 1, 2, 3, 4, 4, 5, 6, 10),
-        # data2=(38, 34, 19, 56, 41, 48, 15),
+        ((5, 6, 7, 8)
+       # , (6, 7, 8, 9)
+        ),
         # is_population=True,
         # cl=0.99,
-        tail="left")
-    # print(dsObject.mean)
-    print(dsObject.hypothesis_test(5, verbose=True))
-    # print(dsObject.tail)
-    # print(dsObject.describe())
+        # samples_dependent=True,
+        # second_index=1,
+        tail="two"
+    )
+    print(dsObject.ci)
+
+
+
+# def p_value(z_score: float, tail: str = "two") -> float:
+#     """Returns the cumulative normal distribution at a z of z_score, two-tailed
+#     by default.
+#
+#     :param float z_score: Z-score lookup value used in the table, from -inf to +inf
+#     :param str tail: Whether the test is "left" tailed, "right" tailed, or "two"-tailed (default)
+#     """
+#     # Data validation
+#     assert isinstance(z_score, float) or isinstance(z_score, int), \
+#         "z_score must be of type 'float' or 'int'"
+#     assert tail in ("left", "right", "two"), \
+#         "Acceptable tail values: 'left', 'right', 'two'"
+#
+#     # Scores less than -3.49 have approx. cumulative area = 0.0001
+#     # Scores greater than 3.49 are approx. cumulative area = 0.9999
+#     z_score = round(z_score, 2)
+#
+#     if z_score < -3.49:
+#         if tail == "right":
+#             return 0.9999
+#         else:
+#             return 0.0001
+#     elif z_score > 3.49:
+#         if tail == "left":
+#             return 0.9999
+#         else:
+#             return 0.0001
+#
+#     # For negative scores, subtract the area represented by the absolute
+#     # value of the negative score from 1
+#     # print(f"z_score = {z_score}")
+#     cumulative_left_area = 0.0
+#     return_p_value = 0.0
+#     if z_score < 0:
+#         # print("z_score < 0")
+#         cumulative_left_area = 1 - self.z_table[abs(z_score)]
+#     else:
+#         # print("z_score > 0")
+#         cumulative_left_area = self.z_table[abs(z_score)]
+#     # print(f"cla = {cumulative_left_area}")
+#     if tail == "two":
+#         # print("tail = 'two'")
+#         if cumulative_left_area > 0.5:
+#             cumulative_left_area = round(1 - cumulative_left_area, 4)
+#         if cumulative_left_area == 0.0001:
+#             return_p_value = cumulative_left_area
+#         else:
+#             return_p_value = 2 * cumulative_left_area
+#     elif tail == "right":
+#         # print("tail = 'right'")
+#         return_p_value = 1 - cumulative_left_area
+#     else:
+#         # print("tail = 'left'")
+#         return_p_value = cumulative_left_area
+#
+#     return round(return_p_value, 4)
+#
+#
+# def interpret_p_value(p_value: float, alpha: float):
+#     fail_to_reject = "fail to reject the null hypothesis"
+#     reject = "reject the null hypothesis"
+#
+#     if p_value >= alpha:
+#         return fail_to_reject
+#     else:
+#         return reject
+
+# def verbose_explanation(score_type, cl, tail, alpha, score, p_value, interpretation) -> str:
+#     tail_dict = {"left": "<", "right": ">", "two": "!="}
+#     equal_dict = {"left": ">=", "right": "<=", "two": "="}
+#     p_value_with_comparator = f"<{p_value}" if p_value == 0.0001 else p_value
+#     return f"The resulting {'z' if 'z' in score_type else 't'}-score for this hypothesis test " \
+#            f"is {round(score, 3)}, which provides a p-value of {p_value_with_comparator}. " \
+#            f"If we compare this p-value to our alpha (cl={cl}, tail={tail}, " \
+#            f"\N{GREEK SMALL LETTER ALPHA}{'/2' if tail == 'two' else ''}={alpha}), " \
+#            f"we can see that {p_value} " \
+#            f"{'>=' if p_value >= alpha else '<'} {alpha}. Therefore, we " \
+#            f"{interpretation} (h0: \N{GREEK SMALL LETTER MU} {equal_dict[tail]} {h0_mu}) " \
+#            f"in favor of the alternative hypothesis (h1: \N{GREEK SMALL LETTER MU} {tail_dict[tail]} {h0_mu})"

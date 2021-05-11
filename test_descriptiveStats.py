@@ -91,12 +91,12 @@ class TestDescrtiptiveStatsClass(unittest.TestCase):
         self.assertEqual(round(self.data_population_zeroes.skew, 4), 1.0251)
 
     def test_score_calculations(self):
-        self.assertEqual((self.data_simple._score_type,
-                          self.data_simple.ci_score), ("t", 2.365))
-        self.assertEqual((self.data_negatives._score_type,
-                          self.data_negatives.ci_score), ("t", 1.895))
-        self.assertEqual((self.data_population_zeroes._score_type,
-                          self.data_population_zeroes.ci_score), ("z", 2.576))
+        self.assertEqual((self.data_simple.score_type,
+                          self.data_simple.score_critical), ("t", 2.365))
+        self.assertEqual((self.data_negatives.score_type,
+                          self.data_negatives.score_critical), ("t", 1.895))
+        self.assertEqual((self.data_population_zeroes.score_type,
+                          self.data_population_zeroes.score_critical), ("z", 2.576))
 
     def test_confidence_interval_calculation(self):
         self.assertEqual(  # data_simple
