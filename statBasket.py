@@ -10,10 +10,8 @@ Classes:
     DescriptiveStats
 """
 
-from sys import exit as sys_exit
 
-
-class DescriptiveStats:
+class StatBasket:
     """
     Class which provides simple descriptive statistics for a supplied tuple
     dataset.

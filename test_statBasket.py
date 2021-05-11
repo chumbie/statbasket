@@ -9,28 +9,28 @@ https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug"""
 import unittest
 
 # Third-Party Imports
-from descriptiveStats import DescriptiveStats as ds
+from statBasket import StatBasket as sb
 
 
-class TestDescrtiptiveStatsClass(unittest.TestCase):
+class TestStatBasketClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.data_simple = ds((1, 2, 3, 4, 4, 5, 6, 10))
-        cls.data_negatives = ds((-1, -2, -3, -4, -4, -5, -6, -10),
+        cls.data_simple = sb((1, 2, 3, 4, 4, 5, 6, 10))
+        cls.data_negatives = sb((-1, -2, -3, -4, -4, -5, -6, -10),
                                 cl=0.90)
-        cls.data_population_zeroes = ds((1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0),
+        cls.data_population_zeroes = sb((1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0),
                                         cl=0.99,
                                         is_population=True)
 
     def test_data_validations(self):
         with self.assertRaises(AssertionError):
-            ds((1, 2, 3), cl=0.98)
-            ds((1, 2, 3), cl="spaghetti")
-            ds((1, 2, 3), tail="spaghetti")
-            ds((1, 2, 3), data_name=7)
-            ds((1, 2, 3), data_name=True)
-            ds((1, 2, 3), data_name=6.022)
+            sb((1, 2, 3), cl=0.98)
+            sb((1, 2, 3), cl="spaghetti")
+            sb((1, 2, 3), tail="spaghetti")
+            sb((1, 2, 3), data_name=7)
+            sb((1, 2, 3), data_name=True)
+            sb((1, 2, 3), data_name=6.022)
 
     def test_get_lookup_df(self):
         self.assertEqual(self.data_simple.n, 8)
@@ -52,7 +52,7 @@ class TestDescrtiptiveStatsClass(unittest.TestCase):
         self.assertEqual(self.data_simple.mode, (4,))
         self.assertEqual(self.data_negatives.mode, (-4,))
         self.assertEqual(self.data_population_zeroes.mode, (0,))
-        self.assertEqual(ds((1, 1, 2, 2)).mode, (1, 2))
+        self.assertEqual(sb((1, 1, 2, 2)).mode, (1, 2))
 
     def test_min_max_and_range(self):
         self.assertEqual((self.data_simple.min,
