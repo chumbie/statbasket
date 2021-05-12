@@ -9,6 +9,11 @@ is_population=True
 Classes:
     DescriptiveStats
 """
+# Standard Python Imports
+import functools  # for decorator wrapper functions i.e. @functools.wraps
+
+# Third-Party Imports
+from statMethods import StatMe
 
 
 class StatBasket:
@@ -25,7 +30,7 @@ class StatBasket:
 
     Usage:
     ___________
-    DescriptiveStats(data: tuple [, is_population: False [, data_name: str]]
+    StatBasket(data: tuple [, is_population: False [, data_name: str]]
 
     Attributes:
     __________
@@ -188,19 +193,15 @@ class StatBasket:
     }
 
     def __repr__(self):
-        data_name = str()
-        if self.data_name != "data":
-            data_name = f" Name of data = {self.data_name}"
-        return f"A DescriptiveStats object.{data_name}"
+        return f"a StatBasket object."
 
     def __init__(self,
-                 data: tuple,
+                 data1: tuple,
+                 data2=tuple(),
                  is_population=False,
                  samples_dependent=False,
                  cl=0.95,
-                 tail=None,
-                 first_index=0,
-                 second_index=1,
+                 tail="two",
                  first_name="data",
                  second_name="data"):
         """
@@ -223,62 +224,116 @@ class StatBasket:
             Default "data", name given to the data set, appears on the display.
         """
 
-        # #################### #
-        # Data Validation
-        # #################### #
+        # Data Validation #############################################
 
-        if not isinstance(data, tuple or list):
-            raise ValueError(
-                   f"Data is of type '{type(data).__name__}'. "
-                   f"Acceptable types: 'tuple', 'list'")
-        if isinstance(data[0], int):
-            data = data, ()
+        def data_validation():
+            # Validate data in tuple form
+            if not isinstance(data1, tuple):
+                raise ValueError(
+                       f"Data is of type '{type(data1).__name__}'. "
+                       f"Acceptable types: 'tuple'")
 
-        data_type_error_list = []
-        for i in range(len(data)):
-            for j in range(len(data[i])):
-                if not isinstance(data[i][j], int or float):
-                    data_type_error_list.append((i, j, data[i][j]))
-        if len(data_type_error_list) != 0:
-            raise ValueError(f"One or more values in dataset are non-numeric \n"
-                             f"(data_index, value_index, value): {data_type_error_list}")
-        if not isinstance(is_population, bool):
-            raise ValueError(f"is_population is of type '{type(is_population).__name__}', "
-                             f"must be of type 'bool' (True or False).")
-        if cl not in (0.90, 0.95, 0.99):
-            raise ValueError(f"Confidence level (cl={str(cl)}) is not 0.90, 0.95, or 0.99.")
-        if tail not in (None, "two", "left", "right"):
-            raise ValueError(f"Tail attribute value (tail={str(cl)}) is not 'two', 'left', or 'right'.")
-        if not tail:
-            tail = "two"
-        if not isinstance(first_name and second_name, str):
-            raise ValueError(f"data_name {str(first_name)} is not a string.")
+            # Validate, only int or float data in data tuples
+            data_type_error_list = []
+            error_help = str()
+            for i in range(len(data1)):
+                if isinstance(data1[i], tuple):
+                    # print("Detected tuple")
+                    error_help = f"data_index, value_index, value"
+                    for j in range(len(data1[i])):
+                        # print("inside nested tuple")
+                        if not isinstance(data1[i][j], (int, float)):
+                            data_type_error_list.append((i, j, data1[i][j]))
+                elif not isinstance(data1[i], (int, float)):
+                    # print("Non-nested tuple")
+                    error_help = f"value_index, value"
+                    data_type_error_list.append((i, data1[i]))
+            # Any non-int, non-float members will be added to error
+            if len(data_type_error_list) != 0:
+                raise ValueError(f"One or more values in dataset are non-numeric \n"
+                                 f"({error_help}): {tuple(data_type_error_list)}")
 
-        # #################### #
-        # Primary Attributes
-        # #################### #
+            if not isinstance(is_population, bool):
+                raise ValueError(
+                    f"is_population is of type '{type(is_population).__name__}', must be of type 'bool'.")
+            if cl not in (0.90, 0.95, 0.99):
+                raise ValueError(f"Confidence level (cl={str(cl)}) is not 0.90, 0.95, or 0.99.")
+            if tail not in ("two", "left", "right"):
+                raise ValueError(f"Tail attribute value (tail={str(tail)}) is not 'two', 'left', or 'right'.")
+            wrong_name = str()
+            if not isinstance(first_name, str):
+                wrong_name = first_name
+            if not isinstance(second_name, str):
+                wrong_name = second_name
+            if wrong_name != '':
+                raise ValueError(f"data_name {str(wrong_name)} is not a string.")
 
-        self.data = data
+        data_validation()
+        # Primary Attributes ##########################################
+
+        self.data = data1, data2
         self.is_population = is_population
         self.samples_dependent = samples_dependent
         self.cl = cl
         self.tail = tail
-        self.first_index = first_index
-        self.second_index = second_index
+        # self.first_index = first_index
+        # self.second_index = second_index
         self.data_name = first_name
 
-    # Calculated Data Properties ######################################
+    # Nested Tuple Detection Decorator (experimental) ################################
+
+    # # @staticmethod
+    # def nested_tuple_detector(func):
+    #     """This function only runs if it detects that data is nested tuples."""
+    #     def inner(self):
+    #         if isinstance(self.data[0], tuple):
+    #             return_list = list()
+    #             for each in self.data:
+    #                 return_list.append(func(each))
+    #             return tuple(return_list)
+    #         else:
+    #             return func(self.data)
+    #     return inner
+
+    # @staticmethod
+    # def n_calc(dataset: tuple):
+    #     """Return the number of elements in the dataset"""
+    #     return len(dataset)
+    """"""
+    def overwrapper_to_pass_stat_function(stat_function):
+        """Passes the appropriate stat function to the property function."""
+        def actual_decorator(func):
+            """If one dataset, return single float/int, else return tuple"""
+            @functools.wraps(func)  # lets functions keep their docs, etc.
+            def inner(self):
+                # checks if un-nested tuple
+                if isinstance(self.data[0], (float, int)):
+                    return (stat_function(self.data))
+                else:
+                    # performs function to each nested tuple
+                    return_list = list()
+                    for each in self.data:
+                        if each == ():
+                            break
+                        return_list.append(stat_function(each))
+                    return tuple(return_list)
+                    func_return = func(self)
+                    if func_return[1] == ():
+                        return func(self, stat_function)[0]
+            return inner
+        return actual_decorator
+
+        # Calculated Data Properties ######################################
+
+    class TestClass:
+        @staticmethod
+        def get_n(data):
+            return len(data)
 
     @property
-    def n(self) -> tuple:
-        """Return a tuple containing the length of each dataset.
-        return = (n_data1, n_data2, ...)."""
-        return_list = list()
-        for each in self.data:
-            if each == ():
-                break
-            return_list.append(len(each))
-        return tuple(return_list)
+    @overwrapper_to_pass_stat_function(TestClass.get_n)
+    def n(self, stat_function):
+        return stat_function(self.data)
 
     @property
     def df(self) -> tuple:
@@ -867,17 +922,12 @@ class StatBasket:
 
 
 if __name__ == "__main__":
-    dsObject = DescriptiveStats(
-        ((5, 6, 7, 8)
-       # , (6, 7, 8, 9)
-        ),
-        # is_population=True,
-        # cl=0.99,
-        # samples_dependent=True,
-        # second_index=1,
-        tail="two"
+    data = (
+        (1.0, 2, 3)
+      , (4, 5.0, 6)
     )
-    print(dsObject.ci)
+    dsObject = StatBasket(data)
+    print(dsObject.n)
 
 
 

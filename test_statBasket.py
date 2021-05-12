@@ -16,21 +16,24 @@ class TestStatBasketClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.data_simple = sb((1, 2, 3, 4, 4, 5, 6, 10))
-        cls.data_negatives = sb((-1, -2, -3, -4, -4, -5, -6, -10),
-                                cl=0.90)
-        cls.data_population_zeroes = sb((1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0),
-                                        cl=0.99,
-                                        is_population=True)
+
+        cls.data_simple = sb((1, 2, 3, 4, 4, 5, 6, 10)),
+        cls.data_negatives = sb((-1, -2, -3, -4, -4, -5, -6, -10), cl=0.90),
+        cls.data_population_zeroes = sb((1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0), cl=0.99, is_population=True)
+
+        cls.data_dict = [cls.data_simple,
+                         cls.data_negatives,
+                         cls.data_population_zeroes]
 
     def test_data_validations(self):
         with self.assertRaises(AssertionError):
+            sb(4)
             sb((1, 2, 3), cl=0.98)
             sb((1, 2, 3), cl="spaghetti")
             sb((1, 2, 3), tail="spaghetti")
-            sb((1, 2, 3), data_name=7)
-            sb((1, 2, 3), data_name=True)
-            sb((1, 2, 3), data_name=6.022)
+            sb((1, 2, 3), first_name=7)
+            sb((1, 2, 3), first_name=True)
+            sb((1, 2, 3), first_name=6.022)
 
     def test_get_lookup_df(self):
         self.assertEqual(self.data_simple.n, 8)
