@@ -1,6 +1,6 @@
-"""test_ctDescStats.py
+"""test_statMethods.py
 
-Unit tests for ctDescStats.py
+Unit tests for statMethods.py
 
 for list of TestCase assert methods visit:
 https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug"""
