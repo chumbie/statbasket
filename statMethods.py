@@ -3,19 +3,34 @@
 Contains the class StatMe, which is a collection of methods used for
 simple statistics calculations."""
 
+__all__ = ['StatMe']
+__author__ = 'John Weldon'
+__version__ = '0.1'
+
+# TODO: Add quartiles
+''
+# TODO: Add outlier calculations and formula considerations
+''
+# TODO: Have get_score_critical return the type of score (t or z) as well
+
 
 class StatMe:
+    """"""
     @staticmethod
     def _data_validation(data):
-        if data == tuple():
-            raise ValueError("data cannot be empty.")
+        if isinstance(data, (list, tuple, type(None))) is not True:
+            raise ValueError(f"data must be tuple, list, or None, "
+                             f"data type is '{type(data).__name__}'. "
+                             f"Iterable data cannot be empty.")
 
-    # Basic Data Attributes ####################################
+    # Basic Data Attributes ###########################################
 
     @classmethod
     def get_n(cls, data: tuple) -> int:
         """Return the sample size of the dataset."""
         cls._data_validation(data)
+        if isinstance(data, (type(None), bool)):
+            return 0
         return len(data)
 
     @classmethod
@@ -61,8 +76,10 @@ class StatMe:
             mean = \\frac{\sum_{i=1}^{n}data}{n}
         """
         cls._data_validation(data)
+        sum_ = sum(data)
+        n = cls.get_n(data)
         try:
-            return round(sum(data) / cls.get_n(data), 5)
+            return round(sum_ / n, 5)
         except ZeroDivisionError as exc:
             # if empty set
             return 0
@@ -90,9 +107,9 @@ class StatMe:
     def get_mode(cls, data: tuple) -> tuple or str:
         """Return 'None' or tuple of one, two or three modes.
         
-        The mode of the dataset is the value which appears most frequently, 
-        e.g. the mode of (1, 2, 2, 3) = 2. Method returns 'None' if number 
-        of modes is either greater than three or fewer than one.
+        The mode(s) of the dataset is(are) the value(s) which appear(s)
+        most frequently, e.g. the modes of (1, 2, 2, 33) = (2, 3).
+        Return 'None' if number of modes is greater than three or zero.
         """
         cls._data_validation(data)
         current_highest_count = int()
@@ -111,7 +128,7 @@ class StatMe:
         # mode_list now contains all items equal to the highest
         # repetitions among data points.
         if len(mode_list) > 3 or len(mode_list) == 0:
-            return "None"
+            return ("None",)
         else:
             return tuple(mode_list)
 
@@ -188,11 +205,14 @@ class StatMe:
 
     @classmethod
     def get_data_diff(cls, data1: tuple, data2: tuple) -> tuple:
-        """Return tuple of differences between the values of two dependent data sets
+        """Return tuple of difference of two dependent data sets
 
         Note that this method assumes that the two data sets are
-        **dependent** and of **equal length**. This method is meaningless
-        when applied to two independent data sets.
+        **dependent** and of **equal lengths**. This method is
+        meaningless when applied to two independent data sets.
+
+        Exmple of dependence: weighing each participant before
+        (data1) and after (data2) taking a weight-loss drug.
 
         .. math::
             x_{diff,i} = x_{1,i} - x_{2,i}
@@ -270,7 +290,8 @@ class StatMe:
     }
 
     @classmethod
-    def _get_lookup_df(cls, df_data1: tuple, df_data2=tuple(), df_pop_var_known=False) -> int:
+    def _get_lookup_df(cls, df_data1: tuple, df_data2=tuple(),
+                       df_pop_var_known=False) -> int:
         """Convert actual df into t_table lookup df."""
         cls._data_validation(df_data1)
         n1 = cls.get_n(df_data1)
@@ -304,8 +325,8 @@ class StatMe:
             data2=tuple(), pop_var_known=False, tail="two") -> float:
         """Return a float of the appropriate critical T-score.
         
-        This score is used by hypothesis tests and mean confidence intervals.
-        The score returned is determined by several factors:
+        This score is used by hypothesis tests and mean confidence
+        intervals. The score returned is determined by several factors:
 
         **\u03b1** : 
             alpha, determined by the confidence level (\u03b1 = 1 - CL). 
@@ -320,10 +341,10 @@ class StatMe:
             whether test is one-tailed (left/right) or two-tailed (most
             common).
 
-            * For large degrees of freedom (**df>150**), or when the population
-              variance is known (**pop_var_known=True**), the data is assumed to 
-              be approximately normal, and a **Z-score** is returned instead of a 
-              T-score.
+      * For large degrees of freedom (**df>150**), or when the
+        population variance is known (**pop_var_known=True**), the
+        data is assumed to be approximately normal, and a **Z-score**
+        is returned instead of a T-score.
         """
         cls._data_validation(data1)
         lookup_df = cls._get_lookup_df(data1, data2, pop_var_known)
@@ -332,7 +353,8 @@ class StatMe:
         return cls.t_table[lookup_df][lookup_alpha]
 
     @classmethod
-    def get_moe(cls, data: tuple, cl=0.95, pop_var_known=False, tail="two") -> float:
+    def get_moe(cls, data: tuple, cl=0.95,
+                pop_var_known=False, tail="two") -> float:
         """Return margin of error of the data.
 
         .. math::
@@ -345,23 +367,26 @@ class StatMe:
         return round(critical_score * sterr, 5)
 
     @classmethod
-    def get_ci(cls, data: tuple, cl=0.95, pop_var_known=False, tail="two") -> tuple:
-        """Return a tuple with the lower and upper bound of the confidence interval
+    def get_ci(cls, data: tuple, cl=0.95,
+               pop_var_known=False, tail="two") -> tuple:
+        """Return a tuple of lower/upper confidence interval boundaries
 
-        Calculates the lower mean estimation and upper mean estimation at
-        confidence level = cl, default 0.95 (95% confidence).
+        Calculates the lower mean estimation and upper mean estimation
+        at confidence level = cl, default 0.95 (95% confidence).
 
         CI = mean \u00B1 t-score * sterr
         """
         cls._data_validation(data)
         mean = cls.get_mean(data)
-        e = cls.get_moe(data, cl=cl, pop_var_known=pop_var_known, tail=tail)
+        e = cls.get_moe(
+            data, cl=cl, pop_var_known=pop_var_known, tail=tail
+        )
         return round(mean - e, 5), round(mean + e, 5)
 
     @classmethod
     def get_score_hyp(
             cls, data1, data2=tuple(), h0=0, samples_dependent=False,
-            pop_var_known=False, more_info=False) -> float or tuple:
+            pop_var_known=False) -> float or tuple:
         """Return the calculated T-score for the supplied data."""
         cls._data_validation(data1)
         from math import sqrt
@@ -375,7 +400,9 @@ class StatMe:
 
         df = cls._get_lookup_df(data1, data2, pop_var_known)
         return_score = float()
-        # The hypothesis tests
+
+        # The hypothesis tests ####
+
         def test_one_pop():
             """Return z/t score for hypothesis test
 
@@ -524,3 +551,57 @@ class StatMe:
         3.48: 0.9997, 3.49: 0.9998,
         99: 0.9999
     }
+
+    @classmethod
+    def _p_value(cls, z_score: float, tail: str = "two") -> float:
+        """Returns the cumulative normal distribution at a z of z_score, two-tailed
+        by default.
+
+        :param float z_score: Z-score lookup value used in the table, from -inf to +inf
+        :param str tail: Whether the test is "left" tailed, "right" tailed, or "two"-tailed (default)
+        """
+        # Data validation
+        assert isinstance(z_score, (float, int)), (
+            "z_score must be of type 'float' or 'int'")
+        assert tail in ("left", "right", "two"), (
+            "Acceptable tail values: 'left', 'right', 'two'")
+        # Z-score lookup value, rounded
+        z_lu: float = round(z_score, 2)
+        p_value = float()
+
+        # Scores less than -3.49 have approx. cumulative area = 0.0001
+        # Scores greater than 3.49 have approx. cumulative area = 0.9999
+        if abs(z_lu) > 3.49:
+            if z_lu < -3.49:
+                if tail == "right":
+                    p_value = 0.9999
+                else:
+                    p_value = 0.0001
+            elif z_lu > 3.49:
+                if tail == "left":
+                    p_value = 0.9999
+                else:
+                    p_value = 0.0001
+            return round(p_value, 4)
+
+        # For negative scores, subtract the area represented by the absolute
+        # value of the negative score from 1
+
+        # Cumulative Left Area of abs(z-score)
+        abs_cla: float = cls.z_table[abs(z_lu)]
+        if tail == "two":
+            p_value = 1 - abs_cla
+            return 2 * p_value
+        elif tail == "right":
+            if z_lu > 0:
+                p_value = 1 - abs_cla
+            else:
+                p_value = p_value
+        elif tail == "left":
+            if z_lu < 0:
+                p_value = 1 - abs_cla
+            else:
+                p_value = p_value
+
+        return round(p_value, 4)
+

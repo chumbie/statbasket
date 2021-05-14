@@ -9,7 +9,7 @@ https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug"""
 import csv
 import unittest
 
-# Third-Party Imports
+# Local Imports
 from statMethods import StatMe as sm
 
 
