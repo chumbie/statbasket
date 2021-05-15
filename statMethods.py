@@ -15,7 +15,19 @@ __version__ = '0.1'
 
 
 class StatMe:
-    """"""
+    """
+    A class of class methods used to perform simple statistics calculations.
+
+    >>> from statMethods import StatMe
+    >>> data = (1, 2, 3, 4, 4, 5)
+    >>> [
+    >>>     StatMe.get_mean(data),
+    >>>     StatMe.get_median(data),
+    >>>     StatMe.get_mode(data)
+    >>> ]
+    (1.9558, 4.37754)
+
+    """
     @staticmethod
     def _data_validation(data):
         if isinstance(data, (list, tuple, type(None))) is not True:
@@ -104,12 +116,27 @@ class StatMe:
             return round(return_median, 5)
 
     @classmethod
-    def get_mode(cls, data: tuple) -> tuple or str:
-        """Return 'None' or tuple of one, two or three modes.
-        
-        The mode(s) of the dataset is(are) the value(s) which appear(s)
-        most frequently, e.g. the modes of (1, 2, 2, 33) = (2, 3).
-        Return 'None' if number of modes is greater than three or zero.
+    def get_mode(cls, data: tuple, multimodal=False) -> float or tuple or str:
+        """Return mode as float, 'none', or 'multimodal'.
+
+        The mode of the dataset is the value which appears most
+        frequently.
+
+        >>> StatMe.get_mode((1, 2, 2, 5))
+        2.0
+
+        Return 'none' if no modes in data.
+
+        >>> StatMe.get_mode((2, 4, 6, 8))
+        'none'
+
+        If multiple modes, returns 'multimodal', or a tuple of modes
+        if multimodal=True.
+
+        >>> StatMe.get_mode((1, 1, 2, 2, 3))
+        'multimodal'
+        >>> StatMe.get_mode((1, 1, 2, 2, 3), multimode=True)
+        (1.0, 2.0)
         """
         cls._data_validation(data)
         current_highest_count = int()
@@ -127,10 +154,15 @@ class StatMe:
                 mode_list.append(each_item)
         # mode_list now contains all items equal to the highest
         # repetitions among data points.
-        if len(mode_list) > 3 or len(mode_list) == 0:
-            return ("None",)
+        if multimodal:
+            return tuple(sorted(mode_list))
         else:
-            return tuple(mode_list)
+            if len(mode_list) == 0:
+                return 'none'
+            elif len(mode_list) == 1:
+                return float(mode_list[0])
+            else:
+                return 'multimodal'
 
     @classmethod
     def get_skew(cls, data: tuple) -> float:
@@ -393,8 +425,11 @@ class StatMe:
 
         def _dependence_validation():
             if samples_dependent:
-                if cls.get_n(data1) != cls.get_n(data2):
-                    raise ValueError("Dependent data sets must have the same number of items.")
+                len_data1 = cls.get_n(data1)
+                len_data2 = cls.get_n(data2)
+                if len_data1 != len_data2:
+                    raise ValueError("Dependent data sets must have the same number of items. "
+                                     f"nx = {len_data1}, ny = {len_data2}")
 
         _dependence_validation()
 
@@ -462,7 +497,7 @@ class StatMe:
             return (x_bar - y_bar) / sqrt(var_pool / n_x + var_pool / n_y)
 
         # Test determination
-        if len(data2) == 0:
+        if cls.get_n(data2) == 0:
             # if data2 is empty, treat as single pop test
             return_score = test_one_pop()
         elif df == 999:
