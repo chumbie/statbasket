@@ -4,4 +4,6 @@
 
 /__pycache__
 /_trial_temp
-
+*~lock*
+/.idea
+/_trial_temp

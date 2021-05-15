@@ -1,16 +1,17 @@
 """
 ctDescStats.py
 
-Contains the DescriptiveStats class, which accepts a list or tuple 
-containing data, and outputs useful descriptive statistics derived from 
-that data set. Assumes data is a sample of a population, unless 
-is_population=True
+Contains the StatBasket class, which accepts a list or tuple 
+containing data and calculates a 'basket' of useful statistics
+describing that data. See the class documentation for more
+details.
 
 Classes:
     StatBasket
 """
 # Standard Library Imports
 import sys
+
 # Local Imports
 sys.path.append("..")  # so path can see the project
 from src.statMethods import StatMe as sm
