@@ -34,8 +34,6 @@ class StatBasket:
     >>> my_data = (1, 2, 3, 4, 5)
     >>> basket = StatBasket(my_data)
     >>> basket.describe()
-    (Note: statistics in this display table are rounded to 5 decimal
-    places.
 
     Usage:
     ___________

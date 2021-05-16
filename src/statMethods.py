@@ -7,6 +7,9 @@ __all__ = ['StatMe']
 __author__ = 'John Weldon'
 __version__ = '0.1'
 
+# Standard System Imports
+from math import fsum
+
 # TODO: Add quartiles
 ''
 # TODO: Add outlier calculations and formula considerations
@@ -27,6 +30,7 @@ class StatMe:
     (1.9558, 4.37754)
 
     """
+
     @staticmethod
     def _data_validation(data):
         if isinstance(data, (list, tuple, type(None))) is not True:
@@ -77,22 +81,24 @@ class StatMe:
         .. math::
             Range = x_max - x_min"""
         cls._data_validation(data)
-        return cls.get_max(data) - cls.get_min(data)
+        max_ = str(cls.get_max(data))
+        min_ = str(cls.get_min(data))
+        return float(max_ - min_)
 
     @classmethod
     def get_mean(cls, data: tuple) -> float:
-        """Return the average value in the dataset to 5 decimal places.
+        """Return the average value in the dataset.
 
         .. math::
             mean = \\frac{\sum_{i=1}^{n}data}{n}
         """
         cls._data_validation(data)
-        sum_ = sum(data)
+        sum_ = fsum(data)
         n = cls.get_n(data)
         try:
-            return round(sum_ / n, 5)
+            return float(sum_ / n)
         except ZeroDivisionError as exc:
-            # if empty set
+            # for hyp score calculation, n = 0 for empty set is useful
             return 0
 
     @classmethod
@@ -105,14 +111,15 @@ class StatMe:
         # Sort the data
         sorted_data = sorted(list(data))
         # Checks if n is odd, if so return middle value
-        if len(sorted_data) % 2 == 1:
-            return float(sorted_data[round(len(sorted_data) / 2)])
+        n = len(sorted_data)
+        if n % 2 == 1:
+            return float(sorted_data[round(n/2)])
         # If n is even, gets the average of the middle two values
         else:
-            median_left = sorted_data[int(len(sorted_data) / 2)]
-            median_right = sorted_data[int(len(sorted_data) / 2 - 1)]
+            median_left = sorted_data[int(n/2)]
+            median_right = sorted_data[int(n / 2-1)]
             return_median = (median_left + median_right) / 2
-            return round(return_median, 5)
+            return float(return_median)
 
     @classmethod
     def get_mode(cls, data: tuple, multimodal=False) -> float or tuple or str:
@@ -121,7 +128,7 @@ class StatMe:
         The mode of the dataset is the value which appears most
         frequently.
 
-        >>> StatMe.get_mode((1, 2, 2, 5))
+        >>> StatMe.get_mode((1, 2, 2)
         2.0
 
         Return 'none' if no modes in data.
@@ -177,8 +184,8 @@ class StatMe:
         sum_of_cubed_difference = float()
         for each_item in data:
             sum_of_cubed_difference += (each_item - mean) ** 3
-        skewness = (1/n) * sum_of_cubed_difference / stdev ** 3
-        return round(skewness, 5)
+        skewness = (1)/n * sum_of_cubed_difference / stdev ** 3
+        return float(skewness)
 
     # Measures of Data Variation ######################################
 
@@ -192,17 +199,18 @@ class StatMe:
         cls._data_validation(data)
         mean = cls.get_mean(data)
         variance = float()
+        n = cls.get_n(data)
         for each_item in data:
             variance += (each_item - mean) ** 2
         # Checks whether is a population or sample
         if is_population:
-            variance = variance / len(data)
+            variance = variance / n
         else:
-            variance = variance / (len(data) - 1)
-        return round(variance, 5)
+            variance = variance / (n - 1)
+        return float(variance)
 
     @classmethod
-    def get_stdev(cls, data: tuple) -> float:
+    def get_stdev(cls, data: tuple, is_population=False) -> float:
         """Calculates the standard deviation (s) of the data set
 
         .. math::
@@ -210,10 +218,10 @@ class StatMe:
         """
         cls._data_validation(data)
         from math import sqrt
-        return round(sqrt(cls.get_var(data)), 5)
+        return sqrt(cls.get_var(data, is_population))
 
     @classmethod
-    def get_sterr(cls, data: tuple) -> float:
+    def get_sterr(cls, data: tuple, is_population=False) -> float:
         """Calculates the standard error of the data set
 
         .. math::
@@ -221,16 +229,16 @@ class StatMe:
         """
         cls._data_validation(data)
         from math import sqrt
-        return round(cls.get_stdev(data) / sqrt(cls.get_n(data)), 5)
+        return cls.get_stdev(data, is_population) / sqrt(cls.get_n(data))
 
     @classmethod
-    def get_cv(cls, data: tuple) -> float:
+    def get_cv(cls, data: tuple, is_population=False) -> float:
         """Returns the coefficient of variation
 
         .. math::
             CV = s/mean"""
         cls._data_validation(data)
-        return round(cls.get_stdev(data) / cls.get_mean(data), 5)
+        return cls.get_stdev(data, is_population) / cls.get_mean(data)
 
     # Two-Population Properties #######################################
 
@@ -277,7 +285,7 @@ class StatMe:
         var1 = cls.get_var(data1)
         n2 = cls.get_n(data2)
         var2 = cls.get_var(data2)
-        return round(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2), 5)
+        return ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
 
     # Hypothesis Testing and Confidence Interval Statistics ###########
 
@@ -322,7 +330,7 @@ class StatMe:
 
     @classmethod
     def _get_lookup_df(cls, df_data1: tuple, df_data2=tuple(),
-                       df_pop_var_known=False) -> int:
+                       df_is_population=False) -> int:
         """Convert actual df into t_table lookup df."""
         cls._data_validation(df_data1)
         n1 = cls.get_n(df_data1)
@@ -332,7 +340,7 @@ class StatMe:
             n2 = cls.get_n(df_data2)
             subtractor = 2
         df = n1 + n2 - subtractor
-        if df > 150 or df_pop_var_known:
+        if df > 150 or df_is_population:
             return 999
         elif df <= 30:
             return df
@@ -353,39 +361,39 @@ class StatMe:
     @classmethod
     def get_score_critical(
             cls, data1: tuple, cl=0.95,
-            data2=tuple(), pop_var_known=False, tail="two") -> float:
+            data2=tuple(), is_population=False, tail="two") -> float:
         """Return a float of the appropriate critical T-score.
-        
+
         This score is used by hypothesis tests and mean confidence
         intervals. The score returned is determined by several factors:
 
-        **\u03b1** : 
-            alpha, determined by the confidence level (\u03b1 = 1 - CL). 
-            For two-tailed tests, \u03b1 = (1 - CL) / 2, in order to 
+        **\u03b1** :
+            alpha, determined by the confidence level (\u03b1 = 1 - CL).
+            For two-tailed tests, \u03b1 = (1 - CL) / 2, in order to
             account for both extreme possible tails of the distribution.
-        
-        **df**: 
-            degrees of freedom in the dataset (df = n - 1). 
+
+        **df**:
+            degrees of freedom in the dataset (df = n - 1).
             For multiple datasets, df = n1 + n2 - 2
-        
-        **Tail-Type**: 
+
+        **Tail-Type**:
             whether test is one-tailed (left/right) or two-tailed (most
             common).
 
       * For large degrees of freedom (**df>150**), or when the
-        population variance is known (**pop_var_known=True**), the
+        population variance is known (**is_population=True**), the
         data is assumed to be approximately normal, and a **Z-score**
         is returned instead of a T-score.
         """
         cls._data_validation(data1)
-        lookup_df = cls._get_lookup_df(data1, data2, pop_var_known)
+        lookup_df = cls._get_lookup_df(data1, data2, is_population)
         lookup_alpha = (1 - cl) / 2 if tail == "two" else (1 - cl)
         lookup_alpha = round(lookup_alpha, 3)
         return cls.t_table[lookup_df][lookup_alpha]
 
     @classmethod
     def get_moe(cls, data: tuple, cl=0.95,
-                pop_var_known=False, tail="two") -> float:
+                is_population=False, tail="two") -> float:
         """Return margin of error of the data.
 
         .. math::
@@ -393,13 +401,13 @@ class StatMe:
         """
         cls._data_validation(data)
         critical_score = cls.get_score_critical(
-            data, cl=cl, pop_var_known=pop_var_known, tail=tail)
-        sterr = cls.get_sterr(data)
-        return round(critical_score * sterr, 5)
+            data, cl=cl, is_population=is_population, tail=tail)
+        sterr = cls.get_sterr(data, is_population)
+        return critical_score * sterr
 
     @classmethod
     def get_ci(cls, data: tuple, cl=0.95,
-               pop_var_known=False, tail="two") -> tuple:
+               is_population=False, tail="two") -> tuple:
         """Return a tuple of lower/upper confidence interval boundaries
 
         Calculates the lower mean estimation and upper mean estimation
@@ -410,19 +418,19 @@ class StatMe:
         cls._data_validation(data)
         mean = cls.get_mean(data)
         e = cls.get_moe(
-            data, cl=cl, pop_var_known=pop_var_known, tail=tail
+            data, cl=cl, is_population=is_population, tail=tail
         )
-        return round(mean - e, 5), round(mean + e, 5)
+        return mean - e, mean + e
 
     @classmethod
     def get_score_hyp(
             cls, data1, data2=tuple(), h0=0, samples_dependent=False,
-            pop_var_known=False) -> float or tuple:
+            is_population=False) -> float or tuple:
         """Return the calculated T-score for the supplied data."""
         cls._data_validation(data1)
         from math import sqrt
 
-        df = cls._get_lookup_df(data1, data2, pop_var_known)
+        df = cls._get_lookup_df(data1, data2, is_population)
         return_score = float()
 
         # The hypothesis tests ####
@@ -479,7 +487,7 @@ class StatMe:
             # if data2 is empty, treat as single pop test
             return_score = test_one_pop(data1)
         elif df == 999:
-            # if df > 150 or pop_var_known, it's a z-test
+            # if df > 150 or is_population, it's a z-test
             return_score = test_two_pop_known_var_ind(data1, data2)
         elif samples_dependent:
             # if samples are dependent, e.g. before-after weigh-ins
@@ -487,7 +495,7 @@ class StatMe:
         else:
             # if two independent samples
             return_score = test_two_pop_unknown_var_ind()
-        return round(return_score, 5)
+        return return_score
 
     # TODO: Do you still need this?
     z_table = {
@@ -616,5 +624,5 @@ class StatMe:
             else:
                 p_value = p_value
 
-        return round(p_value, 4)
+        return p_value
 
