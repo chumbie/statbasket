@@ -1,0 +1,4 @@
+,sim_plus_neg,large1_plus_large2
+var_pool,7.696428571428570,5397.162494244650000
+two_hyp_h0,0.000000000000000,0.000000000000000
+two_hyp,6.308025308657500,'=(mean-h0)/(stdev/sqrt(n))

@@ -263,7 +263,7 @@ class StatBasket:
             self.moe = sm.get_moe(
                 self.data,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.n = sm.get_n(self.data)
@@ -271,7 +271,7 @@ class StatBasket:
             self.score_critical = sm.get_score_critical(
                 self.data,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.skew = sm.get_skew(self.data)
@@ -285,7 +285,7 @@ class StatBasket:
             self.ci_x = sm.get_ci(
                 self.data_x,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.cv_x = sm.get_cv(self.data_x)
@@ -298,7 +298,7 @@ class StatBasket:
             self.moe_x = sm.get_moe(
                 self.data_x,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.n_x = sm.get_n(self.data_x)
@@ -306,7 +306,7 @@ class StatBasket:
             self.score_critical_x = sm.get_score_critical(
                 self.data_x,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.skew_x = sm.get_skew(self.data_x)
@@ -318,7 +318,7 @@ class StatBasket:
             self.ci_y = sm.get_ci(
                 self.data_y,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.cv_y = sm.get_cv(self.data_y)
@@ -331,7 +331,7 @@ class StatBasket:
             self.moe_y = sm.get_moe(
                 self.data_y,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.n_y = sm.get_n(self.data_y)
@@ -339,7 +339,7 @@ class StatBasket:
             self.score_critical_y = sm.get_score_critical(
                 self.data_y,
                 cl=self.cl,
-                pop_var_known=self.is_population,
+                is_population=self.is_population,
                 tail=self.tail
             )
             self.skew_y = sm.get_skew(self.data_y)
@@ -361,7 +361,7 @@ class StatBasket:
         return sm.get_score_hyp(
             data1=test_data, data2=test_data2, h0=h0,
             samples_dependent=self.dep,
-            pop_var_known=self.is_population)
+            is_population=self.is_population)
 
     def __repr__(self):
         return (

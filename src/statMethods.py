@@ -81,8 +81,8 @@ class StatMe:
         .. math::
             Range = x_max - x_min"""
         cls._data_validation(data)
-        max_ = str(cls.get_max(data))
-        min_ = str(cls.get_min(data))
+        max_ = cls.get_max(data)
+        min_ = cls.get_min(data)
         return float(max_ - min_)
 
     @classmethod
@@ -171,7 +171,7 @@ class StatMe:
                 return 'multimodal'
 
     @classmethod
-    def get_skew(cls, data: tuple) -> float:
+    def get_skew(cls, data: tuple, is_population=False) -> float:
         """Return the skewness of the data, using the skewness formula:
 
         .. math::
@@ -180,11 +180,11 @@ class StatMe:
         cls._data_validation(data)
         mean = cls.get_mean(data)
         n = cls.get_n(data)
-        stdev = cls.get_stdev(data)
+        stdev = cls.get_stdev(data, is_population=is_population)
         sum_of_cubed_difference = float()
         for each_item in data:
             sum_of_cubed_difference += (each_item - mean) ** 3
-        skewness = (1)/n * sum_of_cubed_difference / stdev ** 3
+        skewness = (1/n) * sum_of_cubed_difference / stdev ** 3
         return float(skewness)
 
     # Measures of Data Variation ######################################
@@ -329,18 +329,16 @@ class StatMe:
     }
 
     @classmethod
-    def _get_lookup_df(cls, df_data1: tuple, df_data2=tuple(),
-                       df_is_population=False) -> int:
-        """Convert actual df into t_table lookup df."""
-        cls._data_validation(df_data1)
-        n1 = cls.get_n(df_data1)
-        n2 = 0
-        subtractor = 1
-        if df_data2 != tuple():
-            n2 = cls.get_n(df_data2)
-            subtractor = 2
-        df = n1 + n2 - subtractor
-        if df > 150 or df_is_population:
+    def _get_lookup_df(cls, df_data: tuple, df_is_population=False) -> int:
+        """
+        Convert actual df into t_table lookup df.
+
+        For n > 150, returns 999 (z-score lookup value for t-table).
+        """
+        cls._data_validation(df_data)
+        n = cls.get_n(df_data)
+        df = n-1
+        if df >= 150 or df_is_population:
             return 999
         elif df <= 30:
             return df
@@ -361,7 +359,7 @@ class StatMe:
     @classmethod
     def get_score_critical(
             cls, data1: tuple, cl=0.95,
-            data2=tuple(), is_population=False, tail="two") -> float:
+            is_population=False, tail="two") -> float:
         """Return a float of the appropriate critical T-score.
 
         This score is used by hypothesis tests and mean confidence
@@ -386,7 +384,7 @@ class StatMe:
         is returned instead of a T-score.
         """
         cls._data_validation(data1)
-        lookup_df = cls._get_lookup_df(data1, data2, is_population)
+        lookup_df = cls._get_lookup_df(data1, is_population)
         lookup_alpha = (1 - cl) / 2 if tail == "two" else (1 - cl)
         lookup_alpha = round(lookup_alpha, 3)
         return cls.t_table[lookup_df][lookup_alpha]
@@ -425,17 +423,19 @@ class StatMe:
     @classmethod
     def get_score_hyp(
             cls, data1, data2=tuple(), h0=0, samples_dependent=False,
-            is_population=False) -> float or tuple:
+            is_population=False, verbose=False) -> float or tuple:
         """Return the calculated T-score for the supplied data."""
         cls._data_validation(data1)
         from math import sqrt
 
-        df = cls._get_lookup_df(data1, data2, is_population)
+        df = cls._get_lookup_df(data1, is_population)
+        return_score_type = "z" if df == 999 else "t"
+        return_test_type = str()
         return_score = float()
 
         # The hypothesis tests ####
 
-        def test_one_pop(data_):
+        def test_one_pop(data_: tuple, _is_pop: bool):
             """Return z/t score for hypothesis test
 
             Assumptions: single population, z/t determined by lookup.
@@ -447,11 +447,11 @@ class StatMe:
 
                 T = \\frac{x^- - \\mu_0}{s/\\sqrt{n}}"""
             x_bar = cls.get_mean(data_)
-            s_x = cls.get_stdev(data_)
+            s_x = cls.get_stdev(data_, is_population=_is_pop)
             n_x = cls.get_n(data_)
             return (x_bar - h0) / (s_x / sqrt(n_x))
 
-        def test_two_pop_known_var_ind(data1_, data2_):
+        def test_two_pop_known_var_ind(data1_: tuple, data2_: tuple):
             """Return z score for hypothesis test
 
             Assumptions: two populations, known population variance
@@ -460,13 +460,13 @@ class StatMe:
                 Z = \\frac{(x^- - y^-) - \\mu_0}{\\sqrt{\\sigma^2_x/n_x + \\sigma^2_y/n_y}}"""
             x_bar = cls.get_mean(data1_)
             y_bar = cls.get_mean(data2_)
-            var_x = cls.get_var(data1_)
-            var_y = cls.get_var(data2_)
+            var_x = cls.get_var(data1_, is_population=True)
+            var_y = cls.get_var(data2_, is_population=True)
             n_x = cls.get_n(data1_)
             n_y = cls.get_n(data2_)
             return (x_bar - y_bar) / sqrt(var_x / n_x + var_y / n_y)
 
-        def test_two_pop_unknown_var_ind():
+        def test_two_pop_unknown_var_ind(data1_: tuple, data2_: tuple):
             """Return t score for hypothesis test
 
             Assumptions: two populations, unknown population variance,
@@ -475,27 +475,36 @@ class StatMe:
             .. math::
                 T = \\frac{(x^- - y^-) - \\mu_0}{\\sqrt{s^2_p/n_x
                 + s^2_p/n_y}}"""
-            x_bar = cls.get_mean(data1)
-            y_bar = cls.get_mean(data2)
-            var_pool = cls.get_var_pool(data1, data2)
-            n_x = cls.get_n(data1)
-            n_y = cls.get_n(data2)
+            x_bar = cls.get_mean(data1_)
+            y_bar = cls.get_mean(data2_)
+            var_pool = cls.get_var_pool(data1_, data2_)
+            n_x = cls.get_n(data1_)
+            n_y = cls.get_n(data2_)
             return (x_bar - y_bar) / sqrt(var_pool / n_x + var_pool / n_y)
 
         # Test determination
         if cls.get_n(data2) == 0:
             # if data2 is empty, treat as single pop test
-            return_score = test_one_pop(data1)
+            return_score = test_one_pop(data1, is_population)
+            return_test_type = "single pop"
         elif df == 999:
             # if df > 150 or is_population, it's a z-test
             return_score = test_two_pop_known_var_ind(data1, data2)
+            return_test_type = "two pop var known"
         elif samples_dependent:
             # if samples are dependent, e.g. before-after weigh-ins
-            return_score = test_one_pop(cls.get_data_diff(data1, data2))
+            return_score = test_one_pop(
+                cls.get_data_diff(data1, data2), _is_pop=is_population
+            )
+            return_test_type = "two pop dependent"
         else:
             # if two independent samples
-            return_score = test_two_pop_unknown_var_ind()
-        return return_score
+            return_score = test_two_pop_unknown_var_ind(data1, data2)
+            return_test_type = "two pop ind"
+        if verbose:
+            return return_score, return_score_type, return_test_type
+        else:
+            return return_score
 
     # TODO: Do you still need this?
     z_table = {
