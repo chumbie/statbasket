@@ -192,7 +192,7 @@ class StatBasket:
         data_validation()
 
         # Check Number of Sets, Dependence ############################
-
+        ''
         # Set default names if not supplied ##
         default_name = "data"
         default_name_x = "data_x"
@@ -231,8 +231,10 @@ class StatBasket:
 
         # Primary Attributes ##########################################
 
+        # Only one data set, standard names (no _x, _y, etc)
         if data_y_empty:
             self.data = first_data_set
+        # If dependent, stats are of the difference of datasets
         elif samples_dependent:
             self.data = sm.get_data_diff(first_data_set, second_data_set)
             self.dep = True
@@ -253,7 +255,7 @@ class StatBasket:
             self.ci = sm.get_ci(
                 self.data, self.cl, self.is_population, self.tail
             )
-            self.cv = sm.get_cv(self.data)
+            self.cv = sm.get_cv(self.data, is_population=self.is_population)
             self.df = sm.get_df(self.data)
             self.max = sm.get_max(self.data)
             self.mean = sm.get_mean(self.data)
@@ -274,10 +276,10 @@ class StatBasket:
                 is_population=self.is_population,
                 tail=self.tail
             )
-            self.skew = sm.get_skew(self.data)
-            self.stdev = sm.get_stdev(self.data)
-            self.sterr = sm.get_sterr(self.data)
-            self.var = sm.get_var(self.data, self.is_population)
+            self.skew = sm.get_skew(self.data, is_population=self.is_population)
+            self.stdev = sm.get_stdev(self.data, is_population=self.is_population)
+            self.sterr = sm.get_sterr(self.data, is_population=self.is_population)
+            self.var = sm.get_var(self.data, is_population=self.is_population)
 
         else:
             # Two data stats
@@ -288,7 +290,7 @@ class StatBasket:
                 is_population=self.is_population,
                 tail=self.tail
             )
-            self.cv_x = sm.get_cv(self.data_x)
+            self.cv_x = sm.get_cv(self.data_x, is_population=self.is_population)
             self.df_x = sm.get_df(self.data_x)
             self.max_x = sm.get_max(self.data_x)
             self.mean_x = sm.get_mean(self.data_x)
@@ -309,10 +311,10 @@ class StatBasket:
                 is_population=self.is_population,
                 tail=self.tail
             )
-            self.skew_x = sm.get_skew(self.data_x)
-            self.stdev_x = sm.get_stdev(self.data_x)
-            self.sterr_x = sm.get_sterr(self.data_x)
-            self.var_x = sm.get_var(self.data_x, self.is_population)
+            self.skew_x = sm.get_skew(self.data_x, is_population=self.is_population)
+            self.stdev_x = sm.get_stdev(self.data_x, is_population=self.is_population)
+            self.sterr_x = sm.get_sterr(self.data_x, is_population=self.is_population)
+            self.var_x = sm.get_var(self.data_x, is_population=self.is_population)
 
             # Second Data Set
             self.ci_y = sm.get_ci(
@@ -321,7 +323,7 @@ class StatBasket:
                 is_population=self.is_population,
                 tail=self.tail
             )
-            self.cv_y = sm.get_cv(self.data_y)
+            self.cv_y = sm.get_cv(self.data_y, is_population=self.is_population)
             self.df_y = sm.get_df(self.data_y)
             self.max_y = sm.get_max(self.data_y)
             self.mean_y = sm.get_mean(self.data_y)
@@ -342,9 +344,9 @@ class StatBasket:
                 is_population=self.is_population,
                 tail=self.tail
             )
-            self.skew_y = sm.get_skew(self.data_y)
-            self.stdev_y = sm.get_stdev(self.data_y)
-            self.sterr_y = sm.get_sterr(self.data_y)
+            self.skew_y = sm.get_skew(self.data_y, is_population=self.is_population)
+            self.stdev_y = sm.get_stdev(self.data_y, is_population=self.is_population)
+            self.sterr_y = sm.get_sterr(self.data_y, is_population=self.is_population)
             self.var_y = sm.get_var(self.data_y, self.is_population)
 
             # Pooled Variation

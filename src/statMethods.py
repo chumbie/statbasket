@@ -355,7 +355,7 @@ class StatMe:
                     last_key = current_key
 
     @classmethod
-    def _get_lookup_alpha(cls, cl, tail):
+    def _get_lookup_alpha(cls, cl: float, tail: str):
         lookup_alpha = (1 - cl) / 2 if tail == "two" else (1 - cl)
         return round(lookup_alpha, 3)
 

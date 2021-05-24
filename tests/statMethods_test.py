@@ -68,7 +68,7 @@ class TestStatBasketClass(unittest.TestCase):
         cls.data_large2 = cls.create_large_dataset(102)
 
         # number of places after decimal to compare results
-        cls.significant_decimal_places = 10
+        cls.sig_deci_places = 10
 
         # Get the confirmed correct stats, computed with libreOffice Calc
 
@@ -172,138 +172,138 @@ class TestStatBasketClass(unittest.TestCase):
     def test_7_get_mean(self):
         true_simple_mean = float(self.data_dict["data_simple"]["mean"])
         self.assertAlmostEqual(sm.get_mean(self.data_simple), true_simple_mean,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_mean = float(self.data_dict["data_negatives"]["mean"])
         self.assertAlmostEqual(sm.get_mean(self.data_neg_float), true_negative_mean,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_mean = float(self.data_dict["data_zeroes_pop"]["mean"])
         self.assertAlmostEqual(sm.get_mean(self.data_zeroes_pop), true_zeroes_pop_mean,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_mean = float(self.data_dict["large_data_1"]["mean"])
         self.assertAlmostEqual(sm.get_mean(self.data_large), true_large1_mean,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_8_get_median(self):
         true_simple_median = float(self.data_dict["data_simple"]["median"])
         self.assertAlmostEqual(sm.get_median(self.data_simple), true_simple_median,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_median = float(self.data_dict["data_negatives"]["median"])
         self.assertAlmostEqual(sm.get_median(self.data_neg_float), true_negative_median,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_median = float(self.data_dict["data_zeroes_pop"]["median"])
         self.assertAlmostEqual(sm.get_median(self.data_zeroes_pop), true_zeroes_pop_median,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_median = float(self.data_dict["large_data_1"]["median"])
         self.assertAlmostEqual(sm.get_median(self.data_large), true_large1_median,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_9_get_mode(self):
         true_simple_mode = float(self.data_dict["data_simple"]["mode"])
         self.assertAlmostEqual(sm.get_mode(self.data_simple), true_simple_mode,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_mode = float(self.data_dict["data_negatives"]["mode"])
         self.assertAlmostEqual(sm.get_mode(self.data_neg_float), true_negative_mode,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_mode = float(self.data_dict["data_zeroes_pop"]["mode"])
         self.assertAlmostEqual(sm.get_mode(self.data_zeroes_pop), true_zeroes_pop_mode,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_mode = float(self.data_dict["large_data_1"]["mode"])
         self.assertAlmostEqual(sm.get_mode(self.data_large), true_large1_mode,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_10_get_skew(self):
         true_simple_skew = float(self.data_dict["data_simple"]["skew"])
         self.assertAlmostEqual(sm.get_skew(self.data_simple), true_simple_skew,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_skew = float(self.data_dict["data_negatives"]["skew"])
         self.assertAlmostEqual(sm.get_skew(self.data_neg_float), true_negative_skew,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_skew = float(self.data_dict["data_zeroes_pop"]["skew"])
         self.assertAlmostEqual(sm.get_skew(self.data_zeroes_pop, True), true_zeroes_pop_skew,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_skew = float(self.data_dict["large_data_1"]["skew"])
         self.assertAlmostEqual(sm.get_skew(self.data_large), true_large1_skew,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_11_get_var(self):
         true_simple_var = float(self.data_dict["data_simple"]["var"])
         self.assertAlmostEqual(sm.get_var(self.data_simple), true_simple_var,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_var = float(self.data_dict["data_negatives"]["var"])
         self.assertAlmostEqual(sm.get_var(self.data_neg_float), true_negative_var,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_var = float(self.data_dict["data_zeroes_pop"]["var"])
         self.assertAlmostEqual(sm.get_var(self.data_zeroes_pop, True), true_zeroes_pop_var,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_var = float(self.data_dict["large_data_1"]["var"])
         self.assertAlmostEqual(sm.get_var(self.data_large), true_large1_var,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_12_get_stdev(self):
         true_simple_stdev = float(self.data_dict["data_simple"]["stdev"])
         self.assertAlmostEqual(sm.get_stdev(self.data_simple), true_simple_stdev,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_stdev = float(self.data_dict["data_negatives"]["stdev"])
         self.assertAlmostEqual(sm.get_stdev(self.data_neg_float), true_negative_stdev,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_stdev = float(self.data_dict["data_zeroes_pop"]["stdev"])
         self.assertAlmostEqual(sm.get_stdev(self.data_zeroes_pop, True), true_zeroes_pop_stdev,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_stdev = float(self.data_dict["large_data_1"]["stdev"])
         self.assertAlmostEqual(sm.get_stdev(self.data_large), true_large1_stdev,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_13_get_sterr(self):
         true_simple_sterr = float(self.data_dict["data_simple"]["sterr"])
         self.assertAlmostEqual(sm.get_sterr(self.data_simple), true_simple_sterr,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_sterr = float(self.data_dict["data_negatives"]["sterr"])
         self.assertAlmostEqual(sm.get_sterr(self.data_neg_float), true_negative_sterr,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_sterr = float(self.data_dict["data_zeroes_pop"]["sterr"])
         self.assertAlmostEqual(sm.get_sterr(self.data_zeroes_pop, True), true_zeroes_pop_sterr,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_sterr = float(self.data_dict["large_data_1"]["sterr"])
         self.assertAlmostEqual(sm.get_sterr(self.data_large), true_large1_sterr,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_14_get_cv(self):
         true_simple_cv = float(self.data_dict["data_simple"]["cv"])
         self.assertAlmostEqual(sm.get_cv(self.data_simple), true_simple_cv,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_negative_cv = float(self.data_dict["data_negatives"]["cv"])
         self.assertAlmostEqual(sm.get_cv(self.data_neg_float), true_negative_cv,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_zeroes_pop_cv = float(self.data_dict["data_zeroes_pop"]["cv"])
         self.assertAlmostEqual(sm.get_cv(self.data_zeroes_pop, True), true_zeroes_pop_cv,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         true_large1_cv = float(self.data_dict["large_data_1"]["cv"])
         self.assertAlmostEqual(sm.get_cv(self.data_large), true_large1_cv,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_15_get_data_diff(self):
         self.assertEqual(sm.get_data_diff(self.data_simple, self.data_neg_float), (2, 4, 6, 8, 8, 10, 12, 20))
@@ -322,45 +322,45 @@ class TestStatBasketClass(unittest.TestCase):
         sm_sim_neg_var_pool = sm.get_var_pool(self.data_simple, self.data_neg_float)
         true_sim_neg_var_pool = float(data_dict_multi["sim_plus_neg"]["var_pool"])
         self.assertAlmostEqual(sm_sim_neg_var_pool, true_sim_neg_var_pool,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
         sm_larges_var_pool = sm.get_var_pool(self.data_large, self.data_large2)
         true_larges_pool = float(data_dict_multi["large1_plus_large2"]["var_pool"])
         self.assertAlmostEqual(sm_larges_var_pool, true_larges_pool,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_17__get_lookup_df(self):
         sm_sim_df_lookup = sm._get_lookup_df(self.data_simple)
         true_simple_df_lookup = float(self.data_dict["data_simple"]["df_lookup"])
         self.assertAlmostEqual(sm_sim_df_lookup, true_simple_df_lookup,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_neg_df_lookup = sm._get_lookup_df(self.data_neg_float)
         true_negative_df_lookup = float(self.data_dict["data_negatives"]["df_lookup"])
         self.assertAlmostEqual(sm_neg_df_lookup, true_negative_df_lookup,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_zero_pop_df_lookup = sm._get_lookup_df(self.data_zeroes_pop, True)
         true_zeroes_pop_df_lookup = float(self.data_dict["data_zeroes_pop"]["df_lookup"])
         self.assertAlmostEqual(sm_zero_pop_df_lookup, true_zeroes_pop_df_lookup,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_large1_df_lookup = sm._get_lookup_df(self.data_large)
         true_large1_df_lookup = float(self.data_dict["large_data_1"]["df_lookup"])
         self.assertAlmostEqual(sm_large1_df_lookup, true_large1_df_lookup,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_18_get_score_critical(self):
         simple_cl = float(self.data_dict["data_simple"]["cl"])
         sm_crit_sim = sm.get_score_critical(self.data_simple, cl=simple_cl)
         true_crit_sim = float(self.data_dict["data_simple"]["score_critical"])
         self.assertAlmostEqual(sm_crit_sim, true_crit_sim,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         neg_cl = float(self.data_dict["data_negatives"]["cl"])
         sm_crit_neg = sm.get_score_critical(self.data_neg_float, cl=neg_cl)
         true_crit_neg = float(self.data_dict["data_negatives"]["score_critical"])
         self.assertAlmostEqual(sm_crit_neg, true_crit_neg,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         zeroes_cl = float(self.data_dict["data_zeroes_pop"]["cl"])
         sm_crit_zero_pop = sm.get_score_critical(
@@ -368,26 +368,26 @@ class TestStatBasketClass(unittest.TestCase):
         )
         true_crit_zero_pop = float(self.data_dict["data_zeroes_pop"]["score_critical"])
         self.assertAlmostEqual(sm_crit_zero_pop, true_crit_zero_pop,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         large1_cl = float(self.data_dict["large_data_1"]["cl"])
         sm_crit_large1 = sm.get_score_critical(self.data_large, cl=large1_cl)
         true_crit_large1 = float(self.data_dict["large_data_1"]["score_critical"])
         self.assertAlmostEqual(sm_crit_large1, true_crit_large1,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_19_get_moe(self):
         simple_cl = float(self.data_dict["data_simple"]["cl"])
         sm_sim_moe = sm.get_moe(self.data_simple, cl=simple_cl)
         true_sim_moe = float(self.data_dict["data_simple"]["moe"])
         self.assertAlmostEqual(sm_sim_moe, true_sim_moe,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         neg_cl = float(self.data_dict["data_negatives"]["cl"])
         sm_neg_moe = sm.get_moe(self.data_neg_float, cl=neg_cl)
         true_neg_moe = float(self.data_dict["data_negatives"]["moe"])
         self.assertAlmostEqual(sm_neg_moe, true_neg_moe,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         zeroes_cl = float(self.data_dict["data_zeroes_pop"]["cl"])
         sm_zero_pop_moe = sm.get_moe(
@@ -395,13 +395,13 @@ class TestStatBasketClass(unittest.TestCase):
         )
         true_zero_pop_moe = float(self.data_dict["data_zeroes_pop"]["moe"])
         self.assertAlmostEqual(sm_zero_pop_moe, true_zero_pop_moe,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         large1_cl = float(self.data_dict["large_data_1"]["cl"])
         sm_large1_moe = sm.get_moe(self.data_large, cl=large1_cl)
         true_large1_moe = float(self.data_dict["large_data_1"]["moe"])
         self.assertAlmostEqual(sm_large1_moe, true_large1_moe,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_20_get_ci(self):
         simple_cl = float(self.data_dict["data_simple"]["cl"])
@@ -409,18 +409,18 @@ class TestStatBasketClass(unittest.TestCase):
         true_sim_lower = float(self.data_dict["data_simple"]["ci_lower"])
         true_sim_upper = float(self.data_dict["data_simple"]["ci_upper"])
         self.assertAlmostEqual(sm_sim_lower, true_sim_lower,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
         self.assertAlmostEqual(sm_sim_upper, true_sim_upper,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         neg_cl = float(self.data_dict["data_negatives"]["cl"])
         sm_neg_lower, sm_neg_upper = sm.get_ci(self.data_neg_float, cl=neg_cl)
         true_neg_lower = float(self.data_dict["data_negatives"]["ci_lower"])
         true_neg_upper = float(self.data_dict["data_negatives"]["ci_upper"])
         self.assertAlmostEqual(sm_neg_lower, true_neg_lower,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
         self.assertAlmostEqual(sm_neg_upper, true_neg_upper,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         zeroes_cl = float(self.data_dict["data_zeroes"]["cl"])
         sm_zero_pop_lower, sm_zero_pop_upper = sm.get_ci(
@@ -429,18 +429,18 @@ class TestStatBasketClass(unittest.TestCase):
         true_zero_pop_lower = float(self.data_dict["data_zeroes_pop"]["ci_lower"])
         true_zero_pop_upper = float(self.data_dict["data_zeroes_pop"]["ci_upper"])
         self.assertAlmostEqual(sm_zero_pop_lower, true_zero_pop_lower,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
         self.assertAlmostEqual(sm_zero_pop_upper, true_zero_pop_upper,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         large1_cl = float(self.data_dict["large_data_1"]["cl"])
         sm_large1_lower, sm_large1_upper = sm.get_ci(self.data_large, cl=large1_cl)
         true_large1_lower = float(self.data_dict["large_data_1"]["ci_lower"])
         true_large1_upper = float(self.data_dict["large_data_1"]["ci_upper"])
         self.assertAlmostEqual(sm_large1_lower, true_large1_lower,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
         self.assertAlmostEqual(sm_large1_upper, true_large1_upper,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
     def test_21_get_score_hyp(self):
 
@@ -452,32 +452,32 @@ class TestStatBasketClass(unittest.TestCase):
         sm_sim_hyp = sm.get_score_hyp(self.data_simple, h0=sm_sim_h0)
         true_sim_hyp = float(self.data_dict["data_simple"]["score_hyp"])
         self.assertAlmostEqual(sm_sim_hyp, true_sim_hyp,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_neg_h0 = float(self.data_dict["data_negatives"]["h0"])
         sm_neg_hyp = sm.get_score_hyp(self.data_neg_float, h0=sm_neg_h0)
         true_neg_hyp = float(self.data_dict["data_negatives"]["score_hyp"])
         self.assertAlmostEqual(sm_neg_hyp, true_neg_hyp,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         # dependent
         sm_neg_h0 = float(self.data_dict["small_data_diff"]["h0"])
         sm_neg_hyp = sm.get_score_hyp(self.data_simple, self.data_neg_float, h0=sm_neg_h0, samples_dependent=True)
         true_neg_hyp = float(self.data_dict["small_data_diff"]["score_hyp"])
         self.assertAlmostEqual(sm_neg_hyp, true_neg_hyp,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_zero_pop_h0 = float(self.data_dict["data_zeroes_pop"]["h0"])
         sm_zero_pop_hyp = sm.get_score_hyp(self.data_zeroes_pop, is_population=True, h0=sm_zero_pop_h0)
         true_zero_pop_hyp = float(self.data_dict["data_zeroes_pop"]["score_hyp"])
         self.assertAlmostEqual(sm_zero_pop_hyp, true_zero_pop_hyp,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
         sm_large1_h0 = float(self.data_dict["large_data_1"]["h0"])
         sm_large1_hyp = sm.get_score_hyp(self.data_large, h0=sm_large1_h0)
         true_large1_hyp = float(self.data_dict["large_data_1"]["score_hyp"])
         self.assertAlmostEqual(sm_large1_hyp, true_large1_hyp,
-                               places=self.significant_decimal_places)
+                               places=self.sig_deci_places)
 
 
 if __name__ == "__main__":
