@@ -13,8 +13,6 @@ from math import fsum
 # TODO: Add quartiles
 ''
 # TODO: Add outlier calculations and formula considerations
-''
-# TODO: Have get_score_critical return the type of score (t or z) as well
 
 
 class StatMe:
@@ -357,6 +355,11 @@ class StatMe:
                     last_key = current_key
 
     @classmethod
+    def _get_lookup_alpha(cls, cl, tail):
+        lookup_alpha = (1 - cl) / 2 if tail == "two" else (1 - cl)
+        return round(lookup_alpha, 3)
+
+    @classmethod
     def get_score_critical(
             cls, data1: tuple, cl=0.95,
             is_population=False, tail="two") -> float:
@@ -385,8 +388,7 @@ class StatMe:
         """
         cls._data_validation(data1)
         lookup_df = cls._get_lookup_df(data1, is_population)
-        lookup_alpha = (1 - cl) / 2 if tail == "two" else (1 - cl)
-        lookup_alpha = round(lookup_alpha, 3)
+        lookup_alpha = cls._get_lookup_alpha(cl=cl, tail=tail)
         return cls.t_table[lookup_df][lookup_alpha]
 
     @classmethod
