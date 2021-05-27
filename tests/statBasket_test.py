@@ -256,57 +256,57 @@ class TestStatBasketClass(unittest.TestCase):
         data1 = (1, 2, 3, 4, 4, 5, 6, 10)
         data2 = (-1.0, -2.0, -3.0, -4.0, -4.0, -5.0, -6.0, -10.0)
         two_sets_dep = SB(data1, data2, samples_dependent=True)
-        self.assertAlmostEqual(two_sets_dep.n,
+        self.assertAlmostEqual(two_sets_dep.n_diff,
                                float(self.data_dict["small_data_diff"]["n"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.df,
+        self.assertAlmostEqual(two_sets_dep.df_diff,
                                float(self.data_dict["small_data_diff"]["df"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.mean,
+        self.assertAlmostEqual(two_sets_dep.mean_diff,
                                float(self.data_dict["small_data_diff"]["mean"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.median,
+        self.assertAlmostEqual(two_sets_dep.median_diff,
                                float(self.data_dict["small_data_diff"]["median"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.mode,
+        self.assertAlmostEqual(two_sets_dep.mode_diff,
                                float(self.data_dict["small_data_diff"]["mode"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.min,
+        self.assertAlmostEqual(two_sets_dep.min_diff,
                                float(self.data_dict["small_data_diff"]["min"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.max,
+        self.assertAlmostEqual(two_sets_dep.max_diff,
                                float(self.data_dict["small_data_diff"]["max"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.range,
+        self.assertAlmostEqual(two_sets_dep.range_diff,
                                float(self.data_dict["small_data_diff"]["range"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.var,
+        self.assertAlmostEqual(two_sets_dep.var_diff,
                                float(self.data_dict["small_data_diff"]["var"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.stdev,
+        self.assertAlmostEqual(two_sets_dep.stdev_diff,
                                float(self.data_dict["small_data_diff"]["stdev"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.sterr,
+        self.assertAlmostEqual(two_sets_dep.sterr_diff,
                                float(self.data_dict["small_data_diff"]["sterr"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.cv,
+        self.assertAlmostEqual(two_sets_dep.cv_diff,
                                float(self.data_dict["small_data_diff"]["cv"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.skew,
+        self.assertAlmostEqual(two_sets_dep.skew_diff,
                                float(self.data_dict["small_data_diff"]["skew"]),
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.moe,
+        self.assertAlmostEqual(two_sets_dep.moe_diff,
                                float(self.data_dict["small_data_diff"]["moe"]),
                                places=self.sig_deci_places)
         true_neg_float_cl90_lower = float(self.data_dict["small_data_diff"]["ci_lower"])
         true_neg_float_cl90_upper = float(self.data_dict["small_data_diff"]["ci_upper"])
-        self.assertAlmostEqual(two_sets_dep.ci[0],
+        self.assertAlmostEqual(two_sets_dep.ci_diff[0],
                                true_neg_float_cl90_lower,
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.ci[1],
+        self.assertAlmostEqual(two_sets_dep.ci_diff[1],
                                true_neg_float_cl90_upper,
                                places=self.sig_deci_places)
-        self.assertAlmostEqual(two_sets_dep.score_critical,
+        self.assertAlmostEqual(two_sets_dep.score_critical_diff,
                                float(self.data_dict["small_data_diff"]["score_critical"]),
                                places=self.sig_deci_places)
         del data1, data2
