@@ -3,7 +3,7 @@ ctDescStats.py
 
 Contains the StatBasket class, which accepts a list or tuple 
 containing data and calculates a 'basket' of useful statistics
-describing that data. See the class documentation for more
+describing that data. See class documentation for more
 details.
 
 Classes:
@@ -14,7 +14,7 @@ import sys
 
 # Local Imports
 sys.path.append("..")  # so path can see the project
-from src.statMethods import StatMe as sm
+from statbasket.statMethods import StatMe as sm
 
 
 class StatBasket:
@@ -31,46 +31,54 @@ class StatBasket:
     set of data.
 
     For a description of the data set(s), use the describe() method:
-    #>>> my_data = (1, 2, 3, 4, 5)
-    #>>> basket = StatBasket(my_data)
-    #>>> basket.describe()
-
-    Usage:
-    ___________
-    StatBasket(data: tuple [, is_population: False [, data_name: str]]
+    
+    >>> my_data = (1, 2, 3, 4, 5)
+    
+    >>> basket = StatBasket(my_data)
+    
+    >>> basket.describe()
 
     Parameters:
     ___________
-    *data : tuple*
+    first_data_set : tuple
         Single numeric data tuple
-    *data2 : tuple, optional*
+    second_data_set : tuple, optional
         Optional, default empty tuple, single numeric data tuple, for
         comparison or hypothesis testing.
-    *is_population : bool, optional*
+    is_population : bool, optional
         Default False, indicates whether data is a sample (False) or
         a population, i.e. population variance is known (True).
-    *cl : float, optional*
+    samples_dependent: bool, optional
+        Default False, indicates whether the datasets are dependent.
+    cl : float, optional
         Default 0.95, confidence level for critical score
         calculation. Valid inputs are 0.90, 0.95, or 0.99
-    *tail : str, optional*
+    tail : str, optional
         Default "two", indicates what type of tail in hypothesis
         testing, accepted values are "two", "left", or "right",
         for two-tailed, left-tailed, or right-tailed hypothesis
         testing, respectively.
-    *data_name1 : str, optional*
-        Default "data", name given to the data set, appears on the display.
-    *data_name2 : str, optional*
-        Default "data", name given to the data set, appears on the display.
+    first_data_name : str, optional
+        Name given to the data set, appears on the describe() method.
+    second_data_name : str, optional
+        Name given to the data set, appears when using describe() method.
 
     Attributes:
     __________
-    When multiple datasets are used (data2 is not empty), attributes are
+    When multiple datasets are used (second_data_set is not None), attributes are
     subcategorized by number.
-    #>>> data_x = (1, 2, 3)
-    #>>> data_y = (6, 7, 8, 9)
-    #>>> sbObj = StatBasket(data_x, data_y)
-    #>>> print(f"n_data_x = {sbObj.n_x}, n_data_y = {sbObj.n_y})
-    #>>> 'n_data_x = 3, n_data_y = 4'
+    
+    >>> data_x, data_y = (1, 2, 3), (6, 7, 8, 9)
+    >>> sbObj = StatBasket(data_x, data_y)
+    >>> print(n_data_x, ', ', n_data_y)
+    '3, 4'
+
+    If samples_dependent=True, attributes are saved with '_diff' suffix.
+
+    >>> data_x, data_y = (1, 2, 3), (4, 5, 6)
+    >>> sbObj = StatBasket(data_x, data_y, samples_dependent=True)
+    >>> print(sbObj.mean_diff)
+    -3.0
 
     data : tuple
         Single numeric data tuple
@@ -88,36 +96,47 @@ class StatBasket:
         testing, accepted values are "two", "left", or "right",
         for two-tailed, left-tailed, or right-tailed hypothesis
         testing, respectively.
-    data_name1 : str, optional
-        Default "data", name given to the data set, appears in describe().
-    data_name2 : str, optional*
-        Default "data", name given to the data set, appears in describe().
-    n, n1, n2 : float
+    data_name : str, optional
+        Name given to the data set, appears in describe().
+    n : float
         Sample size of datasets, ie. len(data).
-    min, min1, min2 : float
+    min : float
         The smallest value in the data set, i.e. min(data)
-    max, max1, max2 : float
+    max : float
         The largest value in the data set, i.e. max(data)
-    range, range1, range2 : float
+    range : float
         The range of the data, i.e. max - min
-    mean, mean1, mean2 : float
+    mean : float
         The average value in the data set, i.e. sigma^nvi(xi)/n
-    median, median1, median2 : float
+    median : float
         The middlemost value in the data set.
-    mode, mode1, mode2 : tuple
+    mode : tuple
         The value with the most repetitions in the data set. Can be either
         zero, one, two, or three modes. Zero or >3 modes results in "N/A".
-    var, var1, var2 : float
+    var : float
         The variance of the data, i.e. sigma^nvi((x-mean)^2)/n
-    stdev, stdev1, stdev2 : float
+    stdev : float
         The standard deviation (s) of the data set, i.e. sqrt(variance)
-    sterr, sterr1, sterr2 : float
+    sterr : float
         The standard error of the data set, i.e. stdev/sqrt(n)
-    cv, cv1, cv2 : float
+    cv : float
         The coefficient of variation of the data set, i.e. stdev/mean
-    skew, skew1, skew2 : float
+    skew : float
         The skewness of the dataset from negative to positive infinity, i.e.
         sigma^nvi((xi - mean)^3)/((n-1)(sigma)^3)
+    score_critical : float
+        The critical z- or t-score used for confidence interval calculation
+    alpha : float
+        The alpha of the dataset, used for critical score calculation
+    score_critical_type : str
+        Whether the critical score is a 'z' or 't' score
+
+    Methods:
+    _____________
+    calculate_test_score
+        Return the hypothesis test score for the dataset(s)
+    describe
+        Creates a printout of statistics describing the data
     """
 
     def __init__(self, first_data_set: tuple or list,
@@ -155,7 +174,7 @@ class StatBasket:
             when the describe() method is called.
         """
 
-        # Data Validation #############################################
+        # Data Validation and Primary Attributes ######################
 
         def data_validation():
             """Raises error if data types are incorrect, or other problems"""
@@ -206,8 +225,6 @@ class StatBasket:
 
         data_validation()
 
-        # Check Number of Sets, Dependence ############################
-        ''
         # Set default names if not supplied ##
         default_name = "DATA"
         default_name_x = "DATA_X"
@@ -215,9 +232,9 @@ class StatBasket:
         default_name_diff = "DATA_DIFF"
 
         # Check used to determine if second data set supplied
-        data_y_empty = True if second_data_set is None else False
+        self.data_y_empty = True if second_data_set is None else False
 
-        if data_y_empty:
+        if self.data_y_empty:
             self.data_y_empty = True
             if first_data_name is None:
                 # No data_y, no name given, set to default
@@ -252,7 +269,7 @@ class StatBasket:
             # If dependent, _diff stats are of the difference of datasets
             self.data_diff = sm.get_data_diff(first_data_set, second_data_set)
             self.samples_dependent = True
-        if data_y_empty:
+        if self.data_y_empty:
             self.data = first_data_set
         else:
             self.data_x = first_data_set
@@ -261,8 +278,7 @@ class StatBasket:
         self.samples_dependent = samples_dependent
         self.cl = cl
         self.tail = tail
-        # type_, alpha_, _ = sm.get_score_critical(self.data, cl=self.cl, tail=self.tail, verbose=True)
-        # self.test_type, self.alpha, _ = type_, alpha_, _
+
         # Calculated Attributes #######################################
 
         def get_calculated_attributes(self, suffix=str()) -> None:
@@ -303,7 +319,7 @@ class StatBasket:
         # if samples dependent, data = difference (i.e. data_x - data_y)
         if samples_dependent:
             get_calculated_attributes(self, 'diff')
-        if data_y_empty:
+        if self.data_y_empty:
             get_calculated_attributes(self)
         else:
             get_calculated_attributes(self, 'x')
@@ -311,6 +327,7 @@ class StatBasket:
             self.var_pool = sm.get_var_pool(self.data_x, self.data_y)
 
     def calculate_test_score(self, h0: float = 0.0, verbose=False):
+        """Return the hypothesis test score for the dataset(s)"""
         test_data = tuple()
         test_data2 = None
         if self.samples_dependent:
@@ -326,20 +343,13 @@ class StatBasket:
             is_population=self.is_population,
             verbose=verbose)
 
-    def __repr__(self):
-        return (
-            f"a StatBasket object, "
-            f"data = ({self.data_name if self.data_y_empty else self.data_x_name}"
-            f"{'EMPTY' if self.data_y_empty else ', ' + self.data_y_name})"
-        )
-
     def describe(self, round_places=3, h0=None):
         """
         Return a string table containing statistics about the supplied data
 
         Data is rounded to round_places number of decimal places
 
-        If h0 is supplied, returns a hypothesis test as well
+        If h0 is supplied, returns hypothesis test data as well
         """
 
         # Initializes the title of the return table
@@ -361,7 +371,7 @@ class StatBasket:
         else:
             n_type = "Sample"
             n_letter = "n"
-            
+
         print_sections = [
             f"General {n_type} Statistics",
             f"Measures of Central Tendency",
@@ -547,6 +557,13 @@ class StatBasket:
                 + title
                 + data_middle
                 + bottom
+        )
+
+    def __repr__(self):
+        return (
+            f"a StatBasket object, "
+            f"data = ({self.data_name if self.data_y_empty else self.data_x_name}"
+            f"{'EMPTY' if self.data_y_empty else ', ' + self.data_y_name})"
         )
 
 

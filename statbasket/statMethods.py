@@ -10,27 +10,89 @@ __version__ = '0.2'
 # Standard System Imports
 from math import fsum
 
-# TODO: Add quartiles
-''
-# TODO: Add outlier calculations and formula considerations
-
 
 class StatMe:
     """
-    A class of class methods used to perform simple statistics calculations.
+    A class of methods used to perform simple statistics calculations.
 
-    >>> data = (1, 2, 3, 4, 4, 5)
-    >>> [
-    >>>     StatMe.get_mean(data),
-    >>>     StatMe.get_median(data),
-    >>>     StatMe.get_mode(data)
-    >>> ]
-    (1.9558, 4.37754)
+    All methods are implemented as classmethods, so initial class
+    declaration is unnecessary.
+
+    Example Usage:
+        >>> from statbasket.statbasket import StatMe as sm
+        >>> data = (1, 2, 3, 4, 4, 5)
+        >>> sm.get_mean(data)
+        3.1666666666666665
+        >>> sm.get_median(data)
+        3.5
+        >>> sm.get_mode(data)
+        4
+    Methods::
+        get_n:
+            Return the sample size of the data
+
+        get_df:
+            Return the degrees of freedom of the data
+
+        get_min:
+            Return the minimum data value in the sample
+
+        get_max:
+            Return the maximum data value in the sample
+
+        get_range:
+            Return the range of the sample
+
+        get_mean:
+            Return the mean of the sample
+
+        get_median:
+            Return the median of the sample
+
+        get_quartile_data:
+            Return tuple of sample's quartiles data (Q1, Q2, Q3, IQR)
+
+        get_outlier_data:
+            Return the outliers in the dataset
+
+        get_mode:
+            Return the mode of the dataset
+
+        get_var:
+            Return the variance of the sample
+
+        get_stdev:
+            Return the standard deviation of the dataset
+
+        get_sterr:
+            Return the standard error of the dataset
+
+        get_cv:
+            Return the coefficient of variation of the dataset
+
+        get_data_diff:
+            Return the difference of each value between two dependent datasets.
+
+        get_var_pool:
+            Return the pooled variance between two independent datasets.
+
+        get_score_critical:
+            Return the critical z- or t-score for the dataset.
+
+        get_moe:
+            Return the margin of error for the dataset, used to calculate a confidence interval.
+
+        get_ci:
+            Return the confidence interval for the dataset.
+
+        get_score_hyp:
+            Return the hypothesis test score for the dataset(s)
 
     """
 
     @staticmethod
     def _data_validation(data):
+        """Throws ValueError if data is not list, tuple, or None"""
         if isinstance(data, (list, tuple, type(None))) is not True:
             raise ValueError(f"data must be tuple, list, or None, "
                              f"data type is '{type(data).__name__}'. "
@@ -39,15 +101,16 @@ class StatMe:
     # Basic Data Attributes ###########################################
 
     @classmethod
-    def get_n(cls, data: tuple) -> int:
+    def get_n(cls, data: tuple or list) -> int:
         """Return the sample size of the dataset."""
         cls._data_validation(data)
         if isinstance(data, (type(None))):
+            # Some method calculations require 0 if data is None
             return 0
         return len(data)
 
     @classmethod
-    def get_df(cls, data: tuple) -> int:
+    def get_df(cls, data: tuple or list) -> int:
         """Return the degrees of freedom for the dataset.
 
         .. math::
@@ -59,13 +122,13 @@ class StatMe:
         return df
 
     @classmethod
-    def get_min(cls, data: tuple) -> float:
+    def get_min(cls, data: tuple or list) -> float:
         """Return the smallest value in the dataset."""
         cls._data_validation(data)
         return min(data)
 
     @classmethod
-    def get_max(cls, data: tuple) -> float:
+    def get_max(cls, data: tuple or list) -> float:
         """Return the largest value in the dataset."""
         cls._data_validation(data)
         return max(data)
@@ -73,7 +136,7 @@ class StatMe:
     # Measures of Central Tendency ####################################
 
     @classmethod
-    def get_range(cls, data: tuple) -> float:
+    def get_range(cls, data: tuple or list) -> float:
         """Return the range of the data
 
         .. math::
@@ -84,11 +147,11 @@ class StatMe:
         return float(max_ - min_)
 
     @classmethod
-    def get_mean(cls, data: tuple) -> float:
+    def get_mean(cls, data: tuple or list) -> float:
         """Return the average value in the dataset.
 
         .. math::
-            mean = \\frac{\sum_{i=1}^{n}data}{n}
+            mean = \\frac{\sum_{i=1}^{n}x}{n}
         """
         cls._data_validation(data)
         sum_ = fsum(data)
@@ -100,11 +163,11 @@ class StatMe:
             return 0
 
     @classmethod
-    def get_median(cls, data: tuple) -> float:
+    def get_median(cls, data: tuple or list) -> float:
         """Return the median of the dataset.
 
         The median is middlemost value of the dataset, or the average
-         between the two middlemost values where n % 2 = 0 (even)"""
+        between the two middlemost values where n % 2 = 0 (even)"""
         cls._data_validation(data)
         # Sort the data
         sorted_data = sorted(list(data))
@@ -118,9 +181,72 @@ class StatMe:
             median_right = sorted_data[int(n / 2-1)]
             return_median = (median_left + median_right) / 2
             return float(return_median)
+        
+    @classmethod
+    def get_quartile_data(cls, data: tuple or list) -> tuple:
+        """
+        Return a tuple of data's quartile information (Q1, Q2, Q3, IQR)
+
+        If you arrange all valued in the dataset from smallest to largest,
+        Q2 is the middlemost value (the median). If you divide the dataset
+        in half from this median and find the middlemost value in these
+        halves, Q1 is the middlemost value of the first half and Q3 is
+        the middlemost value of the second half, neither half of which
+        includes Q2.
+        The inter-quartile range (IQR) is the number of units between
+        Q1 and Q3, i.e. Q3 - Q1."""
+        cls._data_validation(data)
+        # Sort the data
+        sorted_data = sorted(list(data))
+        # Get q2, which is the median
+        q2 = cls.get_median(data)
+        first_half_data = list()
+        second_half_data = list()
+        # add to first half until median, then add to second half
+        for i in range(len(sorted_data)):
+            # if less than q2, first half
+            if sorted_data[i] < q2:
+                first_half_data.append(sorted_data[i])
+            # if greather than q2, second half, skips q2
+            elif sorted_data[i] > q2:
+                second_half_data.append(sorted_data[i])
+        # use median method on halves to get quartiles
+        q1 = cls.get_median(first_half_data)
+        q3 = cls.get_median(second_half_data)
+        iqr = q3-q1
+        return q1, q2, q3, iqr
 
     @classmethod
-    def get_mode(cls, data: tuple, multimodal=False) -> float or tuple or str:
+    def get_outlier_data(cls, data: tuple or list, remove_outliers=False) -> tuple:
+        """
+        Return a tuple of all outliers in dataset.
+
+        Outliers are defined as data points which are not within 1.5 IQRs
+        of Q1 or Q3.
+
+        If remove_outliers=True, instead returns the data with outliers removed.
+
+        Lower Outlier Limit = Q1 - (1.5*IQR)
+
+        Upper Outlier Limit = Q3 +(1.5*IQR)"""
+        cls._data_validation(data)
+        q1, q2, q3, iqr = cls.get_quartile_data(data)
+        data_without_outliers = list()
+        outliers_list = list()
+        lower_out_bound, upper_out_bound = q1 - 1.5*iqr, q3 + 1.5*iqr
+        print(lower_out_bound, upper_out_bound)
+        for i in range(len(data)):
+            if lower_out_bound <= data[i] <= upper_out_bound:
+                data_without_outliers.append(data[i])
+            else:
+                outliers_list.append(data[i])
+        if remove_outliers:
+            return tuple(data_without_outliers)
+        else:
+            return tuple(outliers_list)
+
+    @classmethod
+    def get_mode(cls, data: tuple or list, multimodal=False) -> float or tuple or str:
         """Return mode as float, 'none', or 'multimodal'.
 
         The mode of the dataset is the value which appears most
@@ -139,7 +265,7 @@ class StatMe:
 
         >>> StatMe.get_mode((1, 1, 2, 2, 3))
         'multimodal'
-        >>> StatMe.get_mode((1, 1, 2, 2, 3), multimode=True)
+        >>> StatMe.get_mode((1, 1, 2, 2, 3), multimodal=True)
         (1.0, 2.0)
         """
         cls._data_validation(data)
@@ -169,7 +295,7 @@ class StatMe:
                 return 'multimodal'
 
     @classmethod
-    def get_skew(cls, data: tuple, is_population=False) -> float:
+    def get_skew(cls, data: tuple or list, is_population=False) -> float:
         """Return the skewness of the data, using the skewness formula:
 
         .. math::
@@ -188,11 +314,17 @@ class StatMe:
     # Measures of Data Variation ######################################
 
     @classmethod
-    def get_var(cls, data: tuple, is_population=False) -> float:
-        """Return the variance (s\u00b2) of each data set as a tuple.
+    def get_var(cls, data: tuple or list, is_population=False) -> float:
+        """Return the sample variance (s\u00b2) of each data set as a
+        tuple.
+
+        If is_population=True, returns the population variance
+        (\u03c3\u00b2) instead.
 
         .. math::
-            s^2 = \\frac{\sum_{i=1}^{n}(x_{i} - mean)^{2}}{n}
+            s^2 = \\frac{\sum_{i=1}^{n}(x_{i} - mean)^{2}}{n - 1}
+
+            \u03c3^2 = \\frac{\sum_{i=1}^{n}(x_{i} - \u03bc)^{2}}{n}
         """
         cls._data_validation(data)
         mean = cls.get_mean(data)
@@ -208,7 +340,7 @@ class StatMe:
         return float(variance)
 
     @classmethod
-    def get_stdev(cls, data: tuple, is_population=False) -> float:
+    def get_stdev(cls, data: tuple or list, is_population=False) -> float:
         """Calculates the standard deviation (s) of the data set
 
         .. math::
@@ -219,7 +351,7 @@ class StatMe:
         return sqrt(cls.get_var(data, is_population))
 
     @classmethod
-    def get_sterr(cls, data: tuple, is_population=False) -> float:
+    def get_sterr(cls, data: tuple or list, is_population=False) -> float:
         """Calculates the standard error of the data set
 
         .. math::
@@ -230,7 +362,7 @@ class StatMe:
         return cls.get_stdev(data, is_population) / sqrt(cls.get_n(data))
 
     @classmethod
-    def get_cv(cls, data: tuple, is_population=False) -> float:
+    def get_cv(cls, data: tuple or list, is_population=False) -> float:
         """Returns the coefficient of variation
 
         .. math::
@@ -245,14 +377,14 @@ class StatMe:
         """Return tuple of difference of two dependent data sets
 
         Note that this method assumes that the two data sets are
-        **dependent** and of **equal lengths**. This method is
-        meaningless when applied to two independent data sets.
+        **dependent** and of **equal sample sizes**, i.e. this method
+        is meaningless when applied to two independent data sets.
 
-        Exmple of dependence: weighing each participant before
+        Example of dependence: weighing each participant before
         (data1) and after (data2) taking a weight-loss drug.
 
         .. math::
-            x_{diff,i} = x_{1,i} - x_{2,i}
+            x_{diff} = x_{1} - x_{2}
         """
         cls._data_validation(data1)
         cls._data_validation(data2)
@@ -327,7 +459,7 @@ class StatMe:
     }
 
     @classmethod
-    def _get_lookup_df(cls, df_data: tuple, df_is_population=False) -> int:
+    def _get_lookup_df(cls, df_data: tuple or list, df_is_population=False) -> int:
         """
         Convert actual df into t_table lookup df.
 
@@ -406,7 +538,7 @@ class StatMe:
             return critical_score
 
     @classmethod
-    def get_moe(cls, data: tuple, cl=0.95,
+    def get_moe(cls, data: tuple or list, cl=0.95,
                 is_population=False, tail="two") -> float:
         """Return margin of error of the data.
 
@@ -420,7 +552,7 @@ class StatMe:
         return critical_score * sterr
 
     @classmethod
-    def get_ci(cls, data: tuple, cl=0.95,
+    def get_ci(cls, data: tuple or list, cl=0.95,
                is_population=False, tail="two") -> tuple:
         """Return a tuple of lower/upper confidence interval boundaries
 
@@ -438,9 +570,31 @@ class StatMe:
 
     @classmethod
     def get_score_hyp(
-            cls, data1, data2=tuple(), h0: float = 0.0, samples_dependent=False,
+            cls, data1: tuple or list, data2=tuple(), h0: float = 0.0, samples_dependent=False,
             is_population=False, verbose=False) -> float or tuple:
-        """Return the calculated T-score for the supplied data."""
+        """
+        Return the calculated T-score for the supplied data.
+
+        Based on supplied information, will perform one of the following
+        tests:
+        Single-Population Z-test
+
+        Single-Population T-test
+
+        Two-Population Z-Test
+
+        Two-Population Dependent T-Test
+
+        Two-Population Independent T-Test
+
+        Parameters:
+            data1: tuple or list, first data set
+            data2: optional, tuple or list, second data set
+            h0: optional, float, default 0.0, the null hypothesis
+            samples_dependent: optional, bool, default False, whether the samples are dependent.
+            is_population: optional, bool, default False, whether the population variation is known.
+            verbose: optional, bool, default False, when checked return tuple of (score, score type, test type)
+        """
         cls._data_validation(data1)
         from math import sqrt
 
@@ -522,132 +676,7 @@ class StatMe:
         else:
             return return_score
 
-    # TODO: Do you still need this?
-    z_table = {
-        -99: 0.0001,
-        0.0: 0.5, 0.01: 0.504, 0.02: 0.508, 0.03: 0.512, 0.04: 0.516,
-        0.05: 0.5199, 0.06: 0.5239, 0.07: 0.5279, 0.08: 0.5319, 0.09: 0.5359,
-        0.1: 0.5398, 0.11: 0.5438, 0.12: 0.5478, 0.13: 0.5517, 0.14: 0.5557,
-        0.15: 0.5596, 0.16: 0.5636, 0.17: 0.5675, 0.18: 0.5714, 0.19: 0.5753,
-        0.2: 0.5793, 0.21: 0.5832, 0.22: 0.5871, 0.23: 0.591, 0.24: 0.5948,
-        0.25: 0.5987, 0.26: 0.6026, 0.27: 0.6064, 0.28: 0.6103, 0.29: 0.6141,
-        0.3: 0.6179, 0.31: 0.6217, 0.32: 0.6255, 0.33: 0.6293, 0.34: 0.6331,
-        0.35: 0.6368, 0.36: 0.6406, 0.37: 0.6443, 0.38: 0.648, 0.39: 0.6517,
-        0.4: 0.6554, 0.41: 0.6591, 0.42: 0.6628, 0.43: 0.6664, 0.44: 0.67,
-        0.45: 0.6736, 0.46: 0.6772, 0.47: 0.6808, 0.48: 0.6844, 0.49: 0.6879,
-        0.5: 0.6915, 0.51: 0.695, 0.52: 0.6985, 0.53: 0.7019, 0.54: 0.7054,
-        0.55: 0.7088, 0.56: 0.7123, 0.57: 0.7157, 0.58: 0.719, 0.59: 0.7224,
-        0.6: 0.7257, 0.61: 0.7291, 0.62: 0.7324, 0.63: 0.7357, 0.64: 0.7389,
-        0.65: 0.7422, 0.66: 0.7454, 0.67: 0.7486, 0.68: 0.7517, 0.69: 0.7549,
-        0.7: 0.758, 0.71: 0.7611, 0.72: 0.7642, 0.73: 0.7673, 0.74: 0.7704,
-        0.75: 0.7734, 0.76: 0.7764, 0.77: 0.7794, 0.78: 0.7823, 0.79: 0.7852,
-        0.8: 0.7881, 0.81: 0.791, 0.82: 0.7939, 0.83: 0.7967, 0.84: 0.7995,
-        0.85: 0.8023, 0.86: 0.8051, 0.87: 0.8078, 0.88: 0.8106, 0.89: 0.8133,
-        0.9: 0.8159, 0.91: 0.8186, 0.92: 0.8212, 0.93: 0.8238, 0.94: 0.8264,
-        0.95: 0.8289, 0.96: 0.8315, 0.97: 0.834, 0.98: 0.8365, 0.99: 0.8389,
-        1.0: 0.8413, 1.01: 0.8438, 1.02: 0.8461, 1.03: 0.8485, 1.04: 0.8508,
-        1.05: 0.8531, 1.06: 0.8554, 1.07: 0.8577, 1.08: 0.8599, 1.09: 0.8621,
-        1.1: 0.8643, 1.11: 0.8665, 1.12: 0.8686, 1.13: 0.8708, 1.14: 0.8729,
-        1.15: 0.8749, 1.16: 0.877, 1.17: 0.879, 1.18: 0.881, 1.19: 0.883,
-        1.2: 0.8849, 1.21: 0.8869, 1.22: 0.8888, 1.23: 0.8907, 1.24: 0.8925,
-        1.25: 0.8944, 1.26: 0.8962, 1.27: 0.898, 1.28: 0.8997, 1.29: 0.9015,
-        1.3: 0.9032, 1.31: 0.9049, 1.32: 0.9066, 1.33: 0.9082, 1.34: 0.9099,
-        1.35: 0.9115, 1.36: 0.9131, 1.37: 0.9147, 1.38: 0.9162, 1.39: 0.9177,
-        1.4: 0.9192, 1.41: 0.9207, 1.42: 0.9222, 1.43: 0.9236, 1.44: 0.9251,
-        1.45: 0.9265, 1.46: 0.9279, 1.47: 0.9292, 1.48: 0.9306, 1.49: 0.9319,
-        1.5: 0.9332, 1.51: 0.9345, 1.52: 0.9357, 1.53: 0.937, 1.54: 0.9382,
-        1.55: 0.9394, 1.56: 0.9406, 1.57: 0.9418, 1.58: 0.9429, 1.59: 0.9441,
-        1.6: 0.9452, 1.61: 0.9463, 1.62: 0.9474, 1.63: 0.9484, 1.64: 0.9495,
-        1.65: 0.9505, 1.66: 0.9515, 1.67: 0.9525, 1.68: 0.9535, 1.69: 0.9545,
-        1.7: 0.9554, 1.71: 0.9564, 1.72: 0.9573, 1.73: 0.9582, 1.74: 0.9591,
-        1.75: 0.9599, 1.76: 0.9608, 1.77: 0.9616, 1.78: 0.9625, 1.79: 0.9633,
-        1.8: 0.9641, 1.81: 0.9649, 1.82: 0.9656, 1.83: 0.9664, 1.84: 0.9671,
-        1.85: 0.9678, 1.86: 0.9686, 1.87: 0.9693, 1.88: 0.9699, 1.89: 0.9706,
-        1.9: 0.9713, 1.91: 0.9719, 1.92: 0.9726, 1.93: 0.9732, 1.94: 0.9738,
-        1.95: 0.9744, 1.96: 0.975, 1.97: 0.9756, 1.98: 0.9761, 1.99: 0.9767,
-        2.0: 0.9772, 2.01: 0.9778, 2.02: 0.9783, 2.03: 0.9788, 2.04: 0.9793,
-        2.05: 0.9798, 2.06: 0.9803, 2.07: 0.9808, 2.08: 0.9812, 2.09: 0.9817,
-        2.1: 0.9821, 2.11: 0.9826, 2.12: 0.983, 2.13: 0.9834, 2.14: 0.9838,
-        2.15: 0.9842, 2.16: 0.9846, 2.17: 0.985, 2.18: 0.9854, 2.19: 0.9857,
-        2.2: 0.9861, 2.21: 0.9864, 2.22: 0.9868, 2.23: 0.9871, 2.24: 0.9875,
-        2.25: 0.9878, 2.26: 0.9881, 2.27: 0.9884, 2.28: 0.9887, 2.29: 0.989,
-        2.3: 0.9893, 2.31: 0.9896, 2.32: 0.9898, 2.33: 0.9901, 2.34: 0.9904,
-        2.35: 0.9906, 2.36: 0.9909, 2.37: 0.9911, 2.38: 0.9913, 2.39: 0.9916,
-        2.4: 0.9918, 2.41: 0.992, 2.42: 0.9922, 2.43: 0.9925, 2.44: 0.9927,
-        2.45: 0.9929, 2.46: 0.9931, 2.47: 0.9932, 2.48: 0.9934, 2.49: 0.9936,
-        2.5: 0.9938, 2.51: 0.994, 2.52: 0.9941, 2.53: 0.9943, 2.54: 0.9945,
-        2.55: 0.9946, 2.56: 0.9948, 2.57: 0.9949, 2.58: 0.9951, 2.59: 0.9952,
-        2.6: 0.9953, 2.61: 0.9955, 2.62: 0.9956, 2.63: 0.9957, 2.64: 0.9959,
-        2.65: 0.996, 2.66: 0.9961, 2.67: 0.9962, 2.68: 0.9963, 2.69: 0.9964,
-        2.7: 0.9965, 2.71: 0.9966, 2.72: 0.9967, 2.73: 0.9968, 2.74: 0.9969,
-        2.75: 0.997, 2.76: 0.9971, 2.77: 0.9972, 2.78: 0.9973, 2.79: 0.9974,
-        2.8: 0.9974, 2.81: 0.9975, 2.82: 0.9976, 2.83: 0.9977, 2.84: 0.9977,
-        2.85: 0.9978, 2.86: 0.9979, 2.87: 0.9979, 2.88: 0.998, 2.89: 0.9981,
-        2.9: 0.9981, 2.91: 0.9982, 2.92: 0.9982, 2.93: 0.9983, 2.94: 0.9984,
-        2.95: 0.9984, 2.96: 0.9985, 2.97: 0.9985, 2.98: 0.9986, 2.99: 0.9986,
-        3.0: 0.9987, 3.01: 0.9987, 3.02: 0.9987, 3.03: 0.9988, 3.04: 0.9988,
-        3.05: 0.9989, 3.06: 0.9989, 3.07: 0.9989, 3.08: 0.999, 3.09: 0.999,
-        3.1: 0.999, 3.11: 0.9991, 3.12: 0.9991, 3.13: 0.9991, 3.14: 0.9992,
-        3.15: 0.9992, 3.16: 0.9992, 3.17: 0.9992, 3.18: 0.9993, 3.19: 0.9993,
-        3.2: 0.9993, 3.21: 0.9993, 3.22: 0.9994, 3.23: 0.9994, 3.24: 0.9994,
-        3.25: 0.9994, 3.26: 0.9994, 3.27: 0.9995, 3.28: 0.9995, 3.29: 0.9995,
-        3.3: 0.9995, 3.31: 0.9995, 3.32: 0.9995, 3.33: 0.9996, 3.34: 0.9996,
-        3.35: 0.9996, 3.36: 0.9996, 3.37: 0.9996, 3.38: 0.9996, 3.39: 0.9997,
-        3.4: 0.9997, 3.41: 0.9997, 3.42: 0.9997, 3.43: 0.9997, 3.44: 0.9997,
-        3.45: 0.9997, 3.46: 0.9997, 3.47: 0.9997, 3.48: 0.9997, 3.49: 0.9998,
-        99: 0.9999
-    }
 
-    @classmethod
-    def _p_value(cls, z_score: float, tail: str = "two") -> float:
-        """Returns the cumulative normal distribution at a z of z_score, two-tailed
-        by default.
-
-        :param float z_score: Z-score lookup value used in the table, from -inf to +inf
-        :param str tail: Whether the test is "left" tailed, "right" tailed, or "two"-tailed (default)
-        """
-        # Data validation
-        assert isinstance(z_score, (float, int)), (
-            "z_score must be of type 'float' or 'int'")
-        assert tail in ("left", "right", "two"), (
-            "Acceptable tail values: 'left', 'right', 'two'")
-        # Z-score lookup value, rounded
-        z_lu: float = round(z_score, 2)
-        p_value = float()
-
-        # Scores less than -3.49 have approx. cumulative area = 0.0001
-        # Scores greater than 3.49 have approx. cumulative area = 0.9999
-        if abs(z_lu) > 3.49:
-            if z_lu < -3.49:
-                if tail == "right":
-                    p_value = 0.9999
-                else:
-                    p_value = 0.0001
-            elif z_lu > 3.49:
-                if tail == "left":
-                    p_value = 0.9999
-                else:
-                    p_value = 0.0001
-            return round(p_value, 4)
-
-        # For negative scores, subtract the area represented by the absolute
-        # value of the negative score from 1
-
-        # Cumulative Left Area of abs(z-score)
-        abs_cla: float = cls.z_table[abs(z_lu)]
-        if tail == "two":
-            p_value = 1 - abs_cla
-            return 2 * p_value
-        elif tail == "right":
-            if z_lu > 0:
-                p_value = 1 - abs_cla
-            else:
-                p_value = p_value
-        elif tail == "left":
-            if z_lu < 0:
-                p_value = 1 - abs_cla
-            else:
-                p_value = p_value
-
-        return p_value
-
+if __name__ == "__main__":
+    data = (1, 2, 3, 4, 4, 5)
+    print(StatMe.get_median(data))
