@@ -260,7 +260,6 @@ class StatMe:
             return tuple(outliers_list)
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
     def get_quartile_data(cls, data: tuple or list) -> tuple:
         """
         Return a tuple of data's quartile information (Q1, Q2, Q3, IQR)
@@ -348,12 +347,7 @@ class StatMe:
             return tuple(outliers_list)
 
     @classmethod
-    def get_mode(
-            cls, data: tuple or list, multimodal=False
-    ) -> float or tuple or str:
-=======
     def get_mode(cls, data: tuple or list, multimodal=False) -> float or tuple or str:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Return mode as float, 'none', or 'multimodal'.
 
         The mode of the dataset is the value which appears most
@@ -402,13 +396,8 @@ class StatMe:
                 return 'multimodal'
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def get_skew(
-            cls, data: tuple or list, is_population=False
-    ) -> float:
-=======
+
     def get_skew(cls, data: tuple or list, is_population=False) -> float:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Return the skewness of the data, using the skewness formula:
 
         .. math::
@@ -427,13 +416,7 @@ class StatMe:
     # Measures of Data Variation ######################################
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def get_var(
-            cls, data: tuple or list, is_population=False
-    ) -> float:
-=======
     def get_var(cls, data: tuple or list, is_population=False) -> float:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Return the sample variance (s\u00b2) of each data set as a
         tuple.
 
@@ -459,13 +442,7 @@ class StatMe:
         return float(variance)
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def get_stdev(
-            cls, data: tuple or list, is_population=False
-    ) -> float:
-=======
     def get_stdev(cls, data: tuple or list, is_population=False) -> float:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Calculates the standard deviation (s) of the data set
 
         .. math::
@@ -476,13 +453,7 @@ class StatMe:
         return sqrt(cls.get_var(data, is_population))
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def get_sterr(
-            cls, data: tuple or list, is_population=False
-    ) -> float:
-=======
     def get_sterr(cls, data: tuple or list, is_population=False) -> float:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Calculates the standard error of the data set
 
         .. math::
@@ -493,13 +464,7 @@ class StatMe:
         return cls.get_stdev(data, is_population) / sqrt(cls.get_n(data))
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def get_cv(
-            cls, data: tuple or list, is_population=False
-    ) -> float:
-=======
     def get_cv(cls, data: tuple or list, is_population=False) -> float:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """Returns the coefficient of variation
 
         .. math::
@@ -596,13 +561,7 @@ class StatMe:
     }
 
     @classmethod
-<<<<<<< HEAD:statbasket/statmethods.py
-    def _get_lookup_df(
-            cls, df_data: tuple or list, df_is_population=False
-    ) -> int:
-=======
     def _get_lookup_df(cls, df_data: tuple or list, df_is_population=False) -> int:
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         """
         Convert actual df into t_table lookup df.
 
@@ -711,12 +670,7 @@ class StatMe:
 
     @classmethod
     def get_score_hyp(
-<<<<<<< HEAD:statbasket/statmethods.py
-            cls, data1: tuple or list, data2=tuple(),
-            h0: float = 0.0, samples_dependent=False,
-=======
             cls, data1: tuple or list, data2=tuple(), h0: float = 0.0, samples_dependent=False,
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
             is_population=False, verbose=False) -> float or tuple:
         """
         Return the calculated T-score for the supplied data.
@@ -824,9 +778,5 @@ class StatMe:
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD:statbasket/statmethods.py
     pass
-=======
-    data = (1, 2, 3, 4, 4, 5)
-    print(StatMe.get_median(data))
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
+

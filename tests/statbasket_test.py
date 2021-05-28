@@ -11,7 +11,7 @@ import sys
 
 # Local Imports
 sys.path.append("..")  # so path can see the project
-from statbasket.statBasket import StatBasket as SB
+from statbasket import StatBasket as SB
 
 
 class TestStatBasketClass(unittest.TestCase):

@@ -14,7 +14,7 @@ import sys
 
 # Local Imports
 sys.path.append("..")  # so path can see the project
-from statbasket.statMethods import StatMe as sm
+from statmethods import StatMe as sm
 
 
 class StatBasket:
@@ -341,11 +341,7 @@ class StatBasket:
         if samples_dependent:
             get_calculated_attributes(self, 'diff')
         if self.data_y_empty:
-<<<<<<< HEAD:statbasket/statbasket.py
-            get_calculated_attributes(self, )
-=======
             get_calculated_attributes(self)
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
         else:
             get_calculated_attributes(self, 'x')
             get_calculated_attributes(self, 'y')

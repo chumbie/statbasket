@@ -10,7 +10,7 @@ import csv
 import unittest
 
 # Local Imports
-from statbasket.statMethods import StatMe as sm
+from statmethods import StatMe as sm
 
 
 class TestStatBasketClass(unittest.TestCase):
