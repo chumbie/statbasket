@@ -33,9 +33,7 @@ class StatBasket:
     For a description of the data set(s), use the describe() method:
     
     >>> my_data = (1, 2, 3, 4, 5)
-    
     >>> basket = StatBasket(my_data)
-    
     >>> basket.describe()
 
     Parameters:
@@ -66,7 +64,7 @@ class StatBasket:
     Attributes:
     __________
     When multiple datasets are used (second_data_set is not None), attributes are
-    subcategorized by number.
+    sub-categorized by suffix.
     
     >>> data_x, data_y = (1, 2, 3), (6, 7, 8, 9)
     >>> sbObj = StatBasket(data_x, data_y)
@@ -110,6 +108,8 @@ class StatBasket:
         The average value in the data set, i.e. sigma^nvi(xi)/n
     median : float
         The middlemost value in the data set.
+    quartiles : tuple
+        Tuple of quartile information, i.e. (Q1, Q2, Q3, IQR)
     mode : tuple
         The value with the most repetitions in the data set. Can be either
         zero, one, two, or three modes. Zero or >3 modes results in "N/A".
@@ -141,6 +141,7 @@ class StatBasket:
 
     def __init__(self, first_data_set: tuple or list,
                  second_data_set: tuple or list = None,
+                 remove_outliers=False,
                  is_population=False,
                  samples_dependent=False,
                  cl=0.95,
@@ -155,6 +156,9 @@ class StatBasket:
         *second_data_set: tuple or list, optional*
             Optional, one-dimensional data set, for comparison to first
             data set, or hypothesis testing
+        *remove_outliers: bool, optional
+            Default False, if True identifies and removes outliers from
+            calculations
         *is_population : bool, optional*
             Default False, indicates whether data is a sample (False) or
             a population, i.e. population variance is known (True).
@@ -264,6 +268,9 @@ class StatBasket:
 
         # Primary Attributes ##########################################
 
+        if remove_outliers:
+            first_data_set = sm.get_outlier_data(first_data_set, remove_outliers=True)
+            second_data_set = sm.get_outlier_data(second_data_set, remove_outliers=True)
         # Only one data set, standard names (no _x, _y, etc)
         if samples_dependent:
             # If dependent, _diff stats are of the difference of datasets
@@ -315,12 +322,13 @@ class StatBasket:
             exec(f"""self.stdev{suffix} = sm.get_stdev(self.data{suffix}, is_population=self.is_population)""")
             exec(f"""self.sterr{suffix} = sm.get_sterr(self.data{suffix}, is_population=self.is_population)""")
             exec(f"""self.var{suffix} = sm.get_var(self.data{suffix}, is_population=self.is_population)""")
+            exec(f"""self.quartiles{suffix} = sm.get_quartile_data(self.data{suffix})""")
 
         # if samples dependent, data = difference (i.e. data_x - data_y)
         if samples_dependent:
             get_calculated_attributes(self, 'diff')
         if self.data_y_empty:
-            get_calculated_attributes(self)
+            get_calculated_attributes(self, )
         else:
             get_calculated_attributes(self, 'x')
             get_calculated_attributes(self, 'y')
@@ -568,10 +576,8 @@ class StatBasket:
 
 
 if __name__ == "__main__":
-    data = (1, 2, 3, 3)
-    data2 = (4, 5, 6, 7)
-    no_print = StatBasket(
-        data, data2, tail='two',
-        first_data_name='my_data',
-        second_data_name='my_data_2').describe(h0=0)
-    print(no_print)
+    pass
+    data1 = (1, 2, 3, 4, 4, 5, 6, 10)
+    # data2 = (-1.0, -2.0, -3.0, -4.0, -4.0, -5.0, -6.0, -10.0)
+    sbObj = StatBasket(data1)
+    print(sbObj.quartiles)

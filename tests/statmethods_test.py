@@ -10,19 +10,19 @@ import csv
 import unittest
 
 # Local Imports
-from src.statMethods import StatMe as sm
+from statbasket.statMethods import StatMe as sm
 
 
 class TestStatBasketClass(unittest.TestCase):
 
     @staticmethod
-    def create_large_dataset(rand_seed):
+    def create_large_dataset(rand_seed, size=100001, min_integer=1, max_integer=255):
         """Generates a list with uniformly distributed integers"""
         from random import seed, randint
         seed(rand_seed)  # seeds random number generator (101), for replication
         return_list = list()
-        for i in range(0, 100001):
-            return_list.append(randint(1, 255))
+        for i in range(0, size):
+            return_list.append(randint(min_integer, max_integer))
         return tuple(return_list)
 
     @staticmethod
@@ -62,7 +62,7 @@ class TestStatBasketClass(unittest.TestCase):
         # function to create large datasets
 
         cls.data_simple = (1, 2, 3, 4, 4, 5, 6, 10)
-        cls.data_neg_float = (-1.0, -2.0, -3.0, -4.0, -4.0, -5.0, -6.0, -10.0)
+        cls.data_neg_float = (-10, -6, -5, -4, -4, -3, -2, -1)
         cls.data_zeroes_pop = (1, 2, 3, 4, 4, 5, 6, 10, 0, 0, 0, 0, 0)
         cls.data_large = cls.create_large_dataset(101)
         cls.data_large2 = cls.create_large_dataset(102)
@@ -306,7 +306,7 @@ class TestStatBasketClass(unittest.TestCase):
                                places=self.sig_deci_places)
 
     def test_15_get_data_diff(self):
-        self.assertEqual(sm.get_data_diff(self.data_simple, self.data_neg_float), (2, 4, 6, 8, 8, 10, 12, 20))
+        self.assertEqual(sm.get_data_diff(self.data_simple, self.data_neg_float), (11, 8, 8, 8, 8, 8, 8, 11))
 
         statMethods_difference_list = sm.get_data_diff(self.data_large, self.data_large2)
         import csv
@@ -479,6 +479,37 @@ class TestStatBasketClass(unittest.TestCase):
         self.assertAlmostEqual(sm_large1_hyp, true_large1_hyp,
                                places=self.sig_deci_places)
 
+    def test_22_get_quartile_data(self):
+        simple_q1 = float(self.data_dict["data_simple"]["q1"])
+        simple_q2 = float(self.data_dict["data_simple"]["median"])
+        simple_q3 = float(self.data_dict["data_simple"]["q3"])
+        simple_iqr = float(self.data_dict["data_simple"]["IQR"])
+        self.assertEqual(sm.get_quartile_data(self.data_simple),
+                         (simple_q1, simple_q2, simple_q3, simple_iqr))
+
+        negatives_q1 = float(self.data_dict["data_negatives"]["q1"])
+        negatives_q2 = float(self.data_dict["data_negatives"]["median"])
+        negatives_q3 = float(self.data_dict["data_negatives"]["q3"])
+        negatives_iqr = float(self.data_dict["data_negatives"]["IQR"])
+        self.assertEqual(sm.get_quartile_data(self.data_neg_float),
+                         (negatives_q1, negatives_q2, negatives_q3, negatives_iqr))
+
+    def test_23_get_outlier_data(self):
+        data = (-100, 1, 2, 3, 4, 100)  # {q1: 1, q2: 2.5, q3: 4.0, IQR: 3}
+        data_ouliers = (-100, 100)
+        data_without_outliers = (1, 2, 3, 4)
+        self.assertEqual(sm.get_outlier_data(data), data_ouliers)
+        self.assertEqual(sm.get_outlier_data(data, remove_outliers=True), data_without_outliers)
+
+        data_close = (-3.6, 1, 2, 3, 4, 8.6)  # {q1: 1, q2: 2.5, q3: 4.0, IQR: 3}
+        data_close_ouliers = (-3.6, 8.6)
+        data_close_without_outliers = (1, 2, 3, 4)
+        self.assertEqual(sm.get_outlier_data(data_close), data_close_ouliers)
+        self.assertEqual(sm.get_outlier_data(data_close, remove_outliers=True), data_close_without_outliers)
+
+
+# TODO: Add readme file
+# TODO: read how to upload to PyPi
 
 if __name__ == "__main__":
     unittest.main()

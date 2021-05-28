@@ -11,7 +11,7 @@ import sys
 
 # Local Imports
 sys.path.append("..")  # so path can see the project
-from src.statBasket import StatBasket as SB
+from statbasket.statBasket import StatBasket as SB
 
 
 class TestStatBasketClass(unittest.TestCase):
@@ -254,7 +254,7 @@ class TestStatBasketClass(unittest.TestCase):
 
     def test_5_dependent_data_sets(self):
         data1 = (1, 2, 3, 4, 4, 5, 6, 10)
-        data2 = (-1.0, -2.0, -3.0, -4.0, -4.0, -5.0, -6.0, -10.0)
+        data2 = (-10.0, -6.0, -5.0, -4.0, -4.0, -3.0, -2.0, -1.0)
         two_sets_dep = SB(data1, data2, samples_dependent=True)
         self.assertAlmostEqual(two_sets_dep.n_diff,
                                float(self.data_dict["small_data_diff"]["n"]),
@@ -472,6 +472,11 @@ class TestStatBasketClass(unittest.TestCase):
         self.assertAlmostEqual(neg_float_cl90.score_critical, float(self.data_dict["data_neg_left_tail"]["score_critical"]),
                                places=self.sig_deci_places)
         del data
+
+    def test_10_remove_outliers(self):
+        data = (1, 2, 3, 4, 4, 5, 6, 11)
+        simple = SB(data, remove_outliers=True)
+        self.assertEqual(simple.data, (1, 2, 3, 4, 4, 5, 6))
 
 
 if __name__ == "__main__":

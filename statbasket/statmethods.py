@@ -169,19 +169,26 @@ class StatMe:
         The median is middlemost value of the dataset, or the average
         between the two middlemost values where n % 2 = 0 (even)"""
         cls._data_validation(data)
+        from math import floor
         # Sort the data
         sorted_data = sorted(list(data))
-        # Checks if n is odd, if so return middle value
         n = len(sorted_data)
+        # get the middle index
+        odd_middle_index = floor(n / 2)
+        upper_even_index = floor(n / 2)
+        lower_even_index = floor(n / 2) - 1
+        # print(f"\nodd_middle = {odd_middle_index}")
+        # print(f"upper_even_middle = {upper_even_index}")
+        # print(f"lower_even_middle = {lower_even_index}")
         if n % 2 == 1:
-            return float(sorted_data[round(n/2)])
+            return float(sorted_data[odd_middle_index])
         # If n is even, gets the average of the middle two values
         else:
-            median_left = sorted_data[int(n/2)]
-            median_right = sorted_data[int(n / 2-1)]
-            return_median = (median_left + median_right) / 2
+            median_lower = sorted_data[lower_even_index]
+            median_upper = sorted_data[upper_even_index]
+            return_median = (median_lower + median_upper) / 2
             return float(return_median)
-        
+
     @classmethod
     def get_quartile_data(cls, data: tuple or list) -> tuple:
         """
@@ -196,28 +203,50 @@ class StatMe:
         The inter-quartile range (IQR) is the number of units between
         Q1 and Q3, i.e. Q3 - Q1."""
         cls._data_validation(data)
+        from math import floor
         # Sort the data
+        n = cls.get_n(data)
+        if n == 0:
+            # Empty dataset, returns zeroes
+            return 0, 0, 0, 0
         sorted_data = sorted(list(data))
+        n_is_odd = True if n % 2 == 1 else False
+
+        # Get middle index
+        odd_middle_index = floor(n / 2)
+        even_upper_index = floor(n / 2)
+        even_lower_index = floor(n / 2) - 1
+
         # Get q2, which is the median
         q2 = cls.get_median(data)
         first_half_data = list()
         second_half_data = list()
+
         # add to first half until median, then add to second half
-        for i in range(len(sorted_data)):
-            # if less than q2, first half
-            if sorted_data[i] < q2:
-                first_half_data.append(sorted_data[i])
-            # if greather than q2, second half, skips q2
-            elif sorted_data[i] > q2:
-                second_half_data.append(sorted_data[i])
+        if n_is_odd:
+            for i in range(n):
+                if i < odd_middle_index:
+                    first_half_data.append(sorted_data[i])
+                # note how if index = middle_index, skips
+                elif i > odd_middle_index:
+                    second_half_data.append(sorted_data[i])
+        else:
+            for i in range(n):
+                if i <= even_lower_index:
+                    first_half_data.append(sorted_data[i])
+                # note how if index = middle_index, skips
+                else:
+                    second_half_data.append(sorted_data[i])
         # use median method on halves to get quartiles
         q1 = cls.get_median(first_half_data)
         q3 = cls.get_median(second_half_data)
-        iqr = q3-q1
+        iqr = q3 - q1
         return q1, q2, q3, iqr
 
     @classmethod
-    def get_outlier_data(cls, data: tuple or list, remove_outliers=False) -> tuple:
+    def get_outlier_data(
+            cls, data: tuple or list, remove_outliers=False
+    ) -> tuple:
         """
         Return a tuple of all outliers in dataset.
 
@@ -230,11 +259,13 @@ class StatMe:
 
         Upper Outlier Limit = Q3 +(1.5*IQR)"""
         cls._data_validation(data)
-        q1, q2, q3, iqr = cls.get_quartile_data(data)
+        q1, _, q3, iqr = cls.get_quartile_data(data)
+        if (q1, _, q3, iqr) == (0, 0, 0, 0):
+            # getting outliers from empty set, return empty
+            return tuple()
         data_without_outliers = list()
         outliers_list = list()
         lower_out_bound, upper_out_bound = q1 - 1.5*iqr, q3 + 1.5*iqr
-        print(lower_out_bound, upper_out_bound)
         for i in range(len(data)):
             if lower_out_bound <= data[i] <= upper_out_bound:
                 data_without_outliers.append(data[i])
@@ -246,7 +277,9 @@ class StatMe:
             return tuple(outliers_list)
 
     @classmethod
-    def get_mode(cls, data: tuple or list, multimodal=False) -> float or tuple or str:
+    def get_mode(
+            cls, data: tuple or list, multimodal=False
+    ) -> float or tuple or str:
         """Return mode as float, 'none', or 'multimodal'.
 
         The mode of the dataset is the value which appears most
@@ -295,7 +328,9 @@ class StatMe:
                 return 'multimodal'
 
     @classmethod
-    def get_skew(cls, data: tuple or list, is_population=False) -> float:
+    def get_skew(
+            cls, data: tuple or list, is_population=False
+    ) -> float:
         """Return the skewness of the data, using the skewness formula:
 
         .. math::
@@ -314,7 +349,9 @@ class StatMe:
     # Measures of Data Variation ######################################
 
     @classmethod
-    def get_var(cls, data: tuple or list, is_population=False) -> float:
+    def get_var(
+            cls, data: tuple or list, is_population=False
+    ) -> float:
         """Return the sample variance (s\u00b2) of each data set as a
         tuple.
 
@@ -340,7 +377,9 @@ class StatMe:
         return float(variance)
 
     @classmethod
-    def get_stdev(cls, data: tuple or list, is_population=False) -> float:
+    def get_stdev(
+            cls, data: tuple or list, is_population=False
+    ) -> float:
         """Calculates the standard deviation (s) of the data set
 
         .. math::
@@ -351,7 +390,9 @@ class StatMe:
         return sqrt(cls.get_var(data, is_population))
 
     @classmethod
-    def get_sterr(cls, data: tuple or list, is_population=False) -> float:
+    def get_sterr(
+            cls, data: tuple or list, is_population=False
+    ) -> float:
         """Calculates the standard error of the data set
 
         .. math::
@@ -362,7 +403,9 @@ class StatMe:
         return cls.get_stdev(data, is_population) / sqrt(cls.get_n(data))
 
     @classmethod
-    def get_cv(cls, data: tuple or list, is_population=False) -> float:
+    def get_cv(
+            cls, data: tuple or list, is_population=False
+    ) -> float:
         """Returns the coefficient of variation
 
         .. math::
@@ -388,15 +431,15 @@ class StatMe:
         """
         cls._data_validation(data1)
         cls._data_validation(data2)
-        data1_len = len(data1)
-        data2_len = len(data2)
-        if data1_len != data2_len:
+        data1_n = StatMe.get_n(data1)
+        data2_n = StatMe.get_n(data2)
+        if data1_n != data2_n:
             raise ValueError(f"Samples are not of equal length.\n"
-                             f"Items in 'data1' = {data1_len}\n"
-                             f"Items in 'data2' = {data2_len}")
+                             f"Items in 'data1' = {data1_n}\n"
+                             f"Items in 'data2' = {data2_n}")
         else:
             return_list = list()
-            for i in range(data1_len):
+            for i in range(data1_n):
                 x1 = data1[i]
                 x2 = data2[i]
                 return_list.append(x1 - x2)
@@ -459,7 +502,9 @@ class StatMe:
     }
 
     @classmethod
-    def _get_lookup_df(cls, df_data: tuple or list, df_is_population=False) -> int:
+    def _get_lookup_df(
+            cls, df_data: tuple or list, df_is_population=False
+    ) -> int:
         """
         Convert actual df into t_table lookup df.
 
@@ -498,12 +543,10 @@ class StatMe:
         return round(alpha, 3)
 
     @classmethod
-    def get_score_critical(cls,
-                           data1: tuple,
-                           cl: float = 0.95,
-                           is_population: bool = False,
-                           tail: str = "two",
-                           verbose: bool = False) -> float or tuple:
+    def get_score_critical(
+            cls, data1: tuple, cl: float = 0.95,
+            is_population: bool = False, tail: str = "two",
+            verbose: bool = False) -> float or tuple:
         """Return a float of the appropriate critical T-score.
 
         This score is used by hypothesis tests and mean confidence
@@ -570,7 +613,8 @@ class StatMe:
 
     @classmethod
     def get_score_hyp(
-            cls, data1: tuple or list, data2=tuple(), h0: float = 0.0, samples_dependent=False,
+            cls, data1: tuple or list, data2=tuple(),
+            h0: float = 0.0, samples_dependent=False,
             is_population=False, verbose=False) -> float or tuple:
         """
         Return the calculated T-score for the supplied data.
@@ -678,5 +722,4 @@ class StatMe:
 
 
 if __name__ == "__main__":
-    data = (1, 2, 3, 4, 4, 5)
-    print(StatMe.get_median(data))
+    pass
