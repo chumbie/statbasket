@@ -33,7 +33,13 @@ class StatBasket:
     For a description of the data set(s), use the describe() method:
     
     >>> my_data = (1, 2, 3, 4, 5)
+<<<<<<< HEAD:statbasket/statbasket.py
     >>> basket = StatBasket(my_data)
+=======
+    
+    >>> basket = StatBasket(my_data)
+    
+>>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     >>> basket.describe()
 
     Parameters:
@@ -64,7 +70,11 @@ class StatBasket:
     Attributes:
     __________
     When multiple datasets are used (second_data_set is not None), attributes are
+<<<<<<< HEAD:statbasket/statbasket.py
     sub-categorized by suffix.
+=======
+    subcategorized by number.
+>>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     
     >>> data_x, data_y = (1, 2, 3), (6, 7, 8, 9)
     >>> sbObj = StatBasket(data_x, data_y)
@@ -108,8 +118,11 @@ class StatBasket:
         The average value in the data set, i.e. sigma^nvi(xi)/n
     median : float
         The middlemost value in the data set.
+<<<<<<< HEAD:statbasket/statbasket.py
     quartiles : tuple
         Tuple of quartile information, i.e. (Q1, Q2, Q3, IQR)
+=======
+>>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     mode : tuple
         The value with the most repetitions in the data set. Can be either
         zero, one, two, or three modes. Zero or >3 modes results in "N/A".
@@ -328,7 +341,11 @@ class StatBasket:
         if samples_dependent:
             get_calculated_attributes(self, 'diff')
         if self.data_y_empty:
+<<<<<<< HEAD:statbasket/statbasket.py
             get_calculated_attributes(self, )
+=======
+            get_calculated_attributes(self)
+>>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
         else:
             get_calculated_attributes(self, 'x')
             get_calculated_attributes(self, 'y')

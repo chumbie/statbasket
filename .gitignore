@@ -6,4 +6,6 @@
 /_trial_temp
 *~lock*
 /.idea
-/_trial_temp
+/tests/_trial_temp
+/tests/__pycache__
+/statbasket/_trial_temp
