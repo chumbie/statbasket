@@ -1,6 +1,8 @@
 # Stat Basket
 
-Stat Basket is a small statistics package intended for use with student projects or small datasets (<1mil datapoints). It is implemented with pure python, so no external dependencies are required.
+Stat Basket is a small statistics package intended for use with student projects 
+or small datasets (<1 mil data points). It is implemented with pure python, 
+so no external dependencies are required.
 
 stat-basket includes two classes, StatMe and StatBasket.
 
@@ -9,17 +11,35 @@ stat-basket includes two classes, StatMe and StatBasket.
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install stat-basket.
 
 ```bash
-pip install stat-basket
+pip install statbasket
 ```
 
 ## Usage
-
+Using the StatBasket class generates all statistical data on initialization.
 ```python
-from statbasket import StatMe
+from statbasket.statbasket import StatBasket
 
-data
+data = (13, 26, 41, 35, 12)
+# Store statistics in object as attributes
+basket = StatBasket(data)
+print(basket.mean)
 
-stat-basket.StatMe
+Output:
+25.4
+```
+Alternatively, if you want to perform specific calculations on-the-fly, 
+without performing the entire batch at once, you can use the StatMe class 
+of methods:
+```python
+from statbasket.statmethods import StatMe
+
+data = (13, 26, 41, 35, 12)
+# Perform single operation on data
+mean = StatMe.get_mean(data)
+print(mean)
+
+Output:
+25.4
 ```
 
 ## Contributing
