@@ -1,2 +1,2 @@
-from statmethods import StatMe
-from statbasket import StatBasket
+from statbasket.src.statmethods import StatMe
+from statbasket src.statbasket import StatBasket
