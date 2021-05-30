@@ -1,7 +1,7 @@
 import setuptools
 from distutils.core import setup
 
-ver = '1.0.04'
+ver = '1.0.05'
 setup(
   name='statbasket',         # How you named your package folder (MyLib)
   packages=['statbasket'],   # Chose the same as "name"
