@@ -13,8 +13,7 @@ Classes:
 import sys
 
 # Local Imports
-sys.path.append("..")  # so path can see the project
-from statmethods import StatMe as sm
+from statbasket.statmethods import StatMe as sm
 
 
 class StatBasket:

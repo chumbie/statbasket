@@ -1,8 +1,6 @@
 # Stat Basket
 
-Stat Basket is a small statistics package intended for use with student projects 
-or small datasets (<1 mil data points). It is implemented with pure python, 
-so no external dependencies are required.
+Stat Basket is a small statistics package intended for use with student projects or small datasets (those containing <1 million data points). It is implemented with pure python, so no external dependencies are required.
 
 stat-basket includes two classes, StatMe and StatBasket.
 
