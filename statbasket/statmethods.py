@@ -9,10 +9,7 @@ from math import fsum
 
 class StatMe:
     """
-    A class of methods used to perform simple statistics calculations.
-
-    All methods are implemented as classmethods, so initial class
-    declaration is unnecessary.
+    A class of class methods used to perform simple statistics calculations.
 
     Example Usage:
         >>> from statbasket.statbasket import StatMe as sm

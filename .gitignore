@@ -9,5 +9,6 @@
 /tests/_trial_temp
 /tests/__pycache__
 /statbasket/_trial_temp
+/statbasket/__pycache__
 /dist
 /statbasket.egg-info

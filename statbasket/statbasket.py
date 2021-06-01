@@ -32,13 +32,7 @@ class StatBasket:
     For a description of the data set(s), use the describe() method:
     
     >>> my_data = (1, 2, 3, 4, 5)
-<<<<<<< HEAD:statbasket/statbasket.py
     >>> basket = StatBasket(my_data)
-=======
-    
-    >>> basket = StatBasket(my_data)
-    
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     >>> basket.describe()
 
     Parameters:
@@ -69,11 +63,7 @@ class StatBasket:
     Attributes:
     __________
     When multiple datasets are used (second_data_set is not None), attributes are
-<<<<<<< HEAD:statbasket/statbasket.py
     sub-categorized by suffix.
-=======
-    subcategorized by number.
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     
     >>> data_x, data_y = (1, 2, 3), (6, 7, 8, 9)
     >>> sbObj = StatBasket(data_x, data_y)
@@ -117,11 +107,8 @@ class StatBasket:
         The average value in the data set, i.e. sigma^nvi(xi)/n
     median : float
         The middlemost value in the data set.
-<<<<<<< HEAD:statbasket/statbasket.py
     quartiles : tuple
         Tuple of quartile information, i.e. (Q1, Q2, Q3, IQR)
-=======
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statBasket.py
     mode : tuple
         The value with the most repetitions in the data set. Can be either
         zero, one, two, or three modes. Zero or >3 modes results in "N/A".
@@ -580,16 +567,8 @@ class StatBasket:
         )
 
     def __repr__(self):
-        return (
-            f"a StatBasket object, "
-            f"data = ({self.data_name if self.data_y_empty else self.data_x_name}"
-            f"{'EMPTY' if self.data_y_empty else ', ' + self.data_y_name})"
-        )
+        return f"a StatBasket object, whose description is below.\n{self.describe()}"
 
 
 if __name__ == "__main__":
     pass
-    data1 = (1, 2, 3, 4, 4, 5, 6, 10)
-    # data2 = (-1.0, -2.0, -3.0, -4.0, -4.0, -5.0, -6.0, -10.0)
-    sbObj = StatBasket(data1)
-    print(sbObj.quartiles)
