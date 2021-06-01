@@ -3,10 +3,6 @@
 Contains the class StatMe, which is a collection of methods used for
 simple statistics calculations."""
 
-__all__ = ['StatMe']
-__author__ = 'John Weldon'
-__version__ = '0.2'
-
 # Standard System Imports
 from math import fsum
 
