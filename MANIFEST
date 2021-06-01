@@ -2,5 +2,3 @@
 setup.cfg
 setup.py
 statbasket\__init__.py
-statbasket\statbasket.py
-statbasket\statmethods.py
