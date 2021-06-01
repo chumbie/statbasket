@@ -423,7 +423,7 @@ class StatBasket:
                     ('Mean (mean)', "{{:,}}".format(round(self.mean{data_suffix}, round_places))),
                     ('Median (median)', "{{:,}}".format(round(self.median{data_suffix}, round_places))),
                     ('Mode (mode)', self.mode{data_suffix} if isinstance(self.mode{data_suffix}, str) else "{{:,}}".format(round(self.mode{data_suffix}, round_places))),
-                    ('Range', "{{:,}}".format(round(self.range{data_suffix}, round_places))),
+                    ('Range (range)', "{{:,}}".format(round(self.range{data_suffix}, round_places))),
                     ('Skewness (skew)', "{{:,}}".format(round(self.skew{data_suffix}, round_places))))""")
 
                 exec(f"""return_data_dict['Measures of Variation'] = (

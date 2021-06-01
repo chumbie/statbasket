@@ -1,7 +1,7 @@
 import setuptools
 from setuptools import setup
 
-ver = '0.0.17'
+ver = '0.0.18'
 setup(
     name='statbasket',         # How you named your package folder (MyLib)
     packages=['statbasket'],   # Chose the same as "name"

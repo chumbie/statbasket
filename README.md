@@ -33,39 +33,39 @@ print(basket.describe())
 ```
 5
 25.4
-________________________________________
-|======================================|
-|       DESCRIPTION OF my_data         |
-|======================================|
-|------General Sample Statistics-------|
-|======================================|
-|  Size of Sample (n)         5        |
-| Minimum Value (min)         12       |
-| Maximum Value (max)         41       |
-|======================================|
-|-----Measures of Central Tendency-----|
-|======================================|
-|         Mean               25.4      |
-|        Median              26.0      |
-|         Mode            multimodal   |
-|        Range               29.0      |
-|       Skewness            0.034      |
-|======================================|
-|--------Measures of Variation---------|
-|======================================|
-|       Variance            167.3      |
-|  Standard Deviation       12.934     |
-|    Standard Error         5.784      |
-| Coeff. of Variation       0.509      |
-|======================================|
-|----Confidence Interval Statistics----|
-|======================================|
-|   Confidence Level         0.95      |
-|    α (two-tailed)         0.025      |
-|       t-score             2.776      |
-| Margin of Error (E)       16.058     |
-|    CI (mean ± E)     [9.342, 41.458] |
-----------------------------------------
+________________________________________________
+|==============================================|
+|             DESCRIPTION OF DATA              |
+|==============================================|
+|----------General Sample Statistics-----------|
+|==============================================|
+|      Size of Sample (n)             5        |
+|     Minimum Value (min)             12       |
+|     Maximum Value (max)             41       |
+|==============================================|
+|---------Measures of Central Tendency---------|
+|==============================================|
+|         Mean (mean)                25.4      |
+|       Median (median)              26.0      |
+|         Mode (mode)             multimodal   |
+|            Range                   29.0      |
+|       Skewness (skew)             0.034      |
+|==============================================|
+|------------Measures of Variation-------------|
+|==============================================|
+|        Variance (var)             167.3      |
+|  Standard Deviation (stdev)       12.934     |
+|    Standard Error (sterr)         5.784      |
+|  Coeff. of Variation (cov)        0.509      |
+|==============================================|
+|--------Confidence Interval Statistics--------|
+|==============================================|
+|    Confidence Level (cl)           0.95      |
+|      alpha, two-tailed            0.025      |
+|   t-score (score_critical)        2.776      |
+|    Margin of Error (moe)          16.058     |
+| CI (mean - moe, mean + moe)  [9.342, 41.458] |
+------------------------------------------------
 ```
 Alternatively, if you want to perform specific calculations on-the-fly, 
 without performing the entire batch of calculations at once, you can use the 
