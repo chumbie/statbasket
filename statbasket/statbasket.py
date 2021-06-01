@@ -420,24 +420,24 @@ class StatBasket:
                     ('Maximum Value (max)', "{{:,}}".format(round(self.max{data_suffix}, round_places))))""")
 
                 exec(f"""return_data_dict['Measures of Central Tendency'] = (
-                    ('Mean', "{{:,}}".format(round(self.mean{data_suffix}, round_places))),
-                    ('Median', "{{:,}}".format(round(self.median{data_suffix}, round_places))),
-                    ('Mode', self.mode{data_suffix} if isinstance(self.mode{data_suffix}, str) else "{{:,}}".format(round(self.mode{data_suffix}, round_places))),
+                    ('Mean (mean)', "{{:,}}".format(round(self.mean{data_suffix}, round_places))),
+                    ('Median (median)', "{{:,}}".format(round(self.median{data_suffix}, round_places))),
+                    ('Mode (mode)', self.mode{data_suffix} if isinstance(self.mode{data_suffix}, str) else "{{:,}}".format(round(self.mode{data_suffix}, round_places))),
                     ('Range', "{{:,}}".format(round(self.range{data_suffix}, round_places))),
-                    ('Skewness', "{{:,}}".format(round(self.skew{data_suffix}, round_places))))""")
+                    ('Skewness (skew)', "{{:,}}".format(round(self.skew{data_suffix}, round_places))))""")
 
                 exec(f"""return_data_dict['Measures of Variation'] = (
-                    ('Variance', "{{:,}}".format(round(self.var{data_suffix}, round_places))),
-                    ('Standard Deviation', "{{:,}}".format(round(self.stdev{data_suffix}, round_places))),
-                    ('Standard Error', "{{:,}}".format(round(self.sterr{data_suffix}, round_places))),
-                    ('Coeff. of Variation', "{{:,}}".format(round(self.cv{data_suffix}, round_places))))""")
+                    ('Variance (var)', "{{:,}}".format(round(self.var{data_suffix}, round_places))),
+                    ('Standard Deviation (stdev)', "{{:,}}".format(round(self.stdev{data_suffix}, round_places))),
+                    ('Standard Error (sterr)', "{{:,}}".format(round(self.sterr{data_suffix}, round_places))),
+                    ('Coeff. of Variation (cov)', "{{:,}}".format(round(self.cv{data_suffix}, round_places))))""")
 
                 exec(f"""return_data_dict['Confidence Interval Statistics'] = (
-                    ('Confidence Level', '{{:,}}'.format(round(self.cl, round_places))),
-                    (f'\N{GREEK SMALL LETTER ALPHA} ({self.tail}-tailed)', '{{:,}}'.format(round(self.alpha{data_suffix}, round_places))),
-                    (f'{{self.score_critical_type{data_suffix}}}-score', '{{:,}}'.format(round(self.score_critical{data_suffix}, round_places))),
-                    (f'Margin of Error (E)', '{{:,}}'.format(round(self.moe{data_suffix}, round_places))),
-                    (f'CI (mean \u00B1 E)',
+                    ('Confidence Level (cl)', '{{:,}}'.format(round(self.cl, round_places))),
+                    (f'alpha, {self.tail}-tailed', '{{:,}}'.format(round(self.alpha{data_suffix}, round_places))),
+                    (f'{{self.score_critical_type{data_suffix}}}-score (score_critical)', '{{:,}}'.format(round(self.score_critical{data_suffix}, round_places))),
+                    (f'Margin of Error (moe)', '{{:,}}'.format(round(self.moe{data_suffix}, round_places))),
+                    (f'CI (mean - moe, mean + moe)',
                      '[{{:,}}'.format(round(self.ci{data_suffix}[0], round_places)) + ', ' + '{{:,}}]'.format(round(self.ci{data_suffix}[1], round_places))))""")
 
                 if h0 is not None:
