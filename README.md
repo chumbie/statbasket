@@ -35,7 +35,7 @@ print(basket.describe())
 25.4
 ________________________________________________
 |==============================================|
-|             DESCRIPTION OF DATA              |
+|           DESCRIPTION OF my_data             |
 |==============================================|
 |----------General Sample Statistics-----------|
 |==============================================|
@@ -74,7 +74,7 @@ without performing the entire batch of calculations at once, you can use the
 from statbasket import StatMe
 
 data = (13, 26, 41, 35, 12)
-# Perform single operation on data
+# Perform single operations on data
 mean = StatMe.get_mean(data)
 ci = StatMe.get_ci(data, cl=0.99)
 print(mean)
