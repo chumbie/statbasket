@@ -56,17 +56,10 @@ class StatMe:
 
         get_stdev:
             Return the standard deviation of the dataset
-<<<<<<< HEAD:statbasket/statmethods.py
 
         get_sterr:
             Return the standard error of the dataset
 
-=======
-
-        get_sterr:
-            Return the standard error of the dataset
-
->>>>>>> 9b139656718d8deddbe47c473991cd01b6ca7ef4:statbasket/statMethods.py
         get_cv:
             Return the coefficient of variation of the dataset
 
@@ -166,7 +159,7 @@ class StatMe:
     def get_median(cls, data: tuple or list) -> float:
         """Return the median of the dataset.
 
-        The median is middlemost value of the dataset, or the average
+        The median is the middlemost value of the dataset, or the average
         between the two middlemost values where n % 2 = 0 (even)"""
         cls._data_validation(data)
         from math import floor
@@ -188,69 +181,6 @@ class StatMe:
             median_upper = sorted_data[upper_even_index]
             return_median = (median_lower + median_upper) / 2
             return float(return_median)
-        
-    @classmethod
-    def get_quartile_data(cls, data: tuple or list) -> tuple:
-        """
-        Return a tuple of data's quartile information (Q1, Q2, Q3, IQR)
-
-        If you arrange all valued in the dataset from smallest to largest,
-        Q2 is the middlemost value (the median). If you divide the dataset
-        in half from this median and find the middlemost value in these
-        halves, Q1 is the middlemost value of the first half and Q3 is
-        the middlemost value of the second half, neither half of which
-        includes Q2.
-        The inter-quartile range (IQR) is the number of units between
-        Q1 and Q3, i.e. Q3 - Q1."""
-        cls._data_validation(data)
-        # Sort the data
-        sorted_data = sorted(list(data))
-        # Get q2, which is the median
-        q2 = cls.get_median(data)
-        first_half_data = list()
-        second_half_data = list()
-        # add to first half until median, then add to second half
-        for i in range(len(sorted_data)):
-            # if less than q2, first half
-            if sorted_data[i] < q2:
-                first_half_data.append(sorted_data[i])
-            # if greather than q2, second half, skips q2
-            elif sorted_data[i] > q2:
-                second_half_data.append(sorted_data[i])
-        # use median method on halves to get quartiles
-        q1 = cls.get_median(first_half_data)
-        q3 = cls.get_median(second_half_data)
-        iqr = q3-q1
-        return q1, q2, q3, iqr
-
-    @classmethod
-    def get_outlier_data(cls, data: tuple or list, remove_outliers=False) -> tuple:
-        """
-        Return a tuple of all outliers in dataset.
-
-        Outliers are defined as data points which are not within 1.5 IQRs
-        of Q1 or Q3.
-
-        If remove_outliers=True, instead returns the data with outliers removed.
-
-        Lower Outlier Limit = Q1 - (1.5*IQR)
-
-        Upper Outlier Limit = Q3 +(1.5*IQR)"""
-        cls._data_validation(data)
-        q1, q2, q3, iqr = cls.get_quartile_data(data)
-        data_without_outliers = list()
-        outliers_list = list()
-        lower_out_bound, upper_out_bound = q1 - 1.5*iqr, q3 + 1.5*iqr
-        print(lower_out_bound, upper_out_bound)
-        for i in range(len(data)):
-            if lower_out_bound <= data[i] <= upper_out_bound:
-                data_without_outliers.append(data[i])
-            else:
-                outliers_list.append(data[i])
-        if remove_outliers:
-            return tuple(data_without_outliers)
-        else:
-            return tuple(outliers_list)
 
     @classmethod
     def get_quartile_data(cls, data: tuple or list) -> tuple:
@@ -389,7 +319,6 @@ class StatMe:
                 return 'multimodal'
 
     @classmethod
-
     def get_skew(cls, data: tuple or list, is_population=False) -> float:
         """Return the skewness of the data, using the skewness formula:
 
@@ -411,7 +340,7 @@ class StatMe:
     @classmethod
     def get_var(cls, data: tuple or list, is_population=False) -> float:
         """Return the sample variance (s\u00b2) of each data set as a
-        tuple.
+        float.
 
         If is_population=True, returns the population variance
         (\u03c3\u00b2) instead.
@@ -583,7 +512,8 @@ class StatMe:
 
     @classmethod
     def _get_alpha(cls, cl: float, tail: str):
-        """Return alpha(\u03b1), determined by CL and tailed-ness.
+        """Return alpha(\u03b1), determined by confidence level (CL)
+        and tailed-ness.
 
         \u03b1 = 1 - CL
 
